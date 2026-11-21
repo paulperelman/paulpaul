@@ -906,7 +906,7 @@ gapless refinable phase with all per-phase clauses intact.
    and its infrared inventory is internally strong: per-character uniqueness,
    irreducibility, uniform slab and heat bounds — all proved.
 2. **The method is categorically short of the mass gap:** its infrared output
-   class (polynomial slab/heat bounds) is separated, by explicit spectre
+   class (polynomial slab/heat bounds) is separated, by explicit spectral
    models and by the absence of any Tauberian-or-support step at the vertex or
    the light shell, from every formulation of the mass gap. The shortfall is
    exactly four clauses: Δ1 (or equivalently Δ3′), Δ2, Δ4 — with Δ3′
@@ -920,3 +920,244 @@ gapless refinable phase with all per-phase clauses intact.
    `νletter (lowE u) ≤ M·u²` to nullity below a threshold, add light-shell
    nullity, and make the selection stable over refinements — everything else
    in the chain is already proved, or already present as infrastructure.
+
+
+---
+
+# PART V — fifth pass: the rescue routes evaluated simultaneously, and closed
+
+*Scope of this pass.* Part IV ruled the method out as a complete proof engine by
+comparing its proved output class (polynomial rates, uniform in character) with
+the certificate class of the mass gap (support nullity / exponential rates). A
+rule-out of that shape is only as strong as its boundary: it leaves open that
+some *route* inside the method's own infrastructure — its trace refutations, its
+SNAG semigroups, its Tauberian layer — could reach Δ1/Δ2/Δ3′/Δ4 without leaving
+the repository. This pass evaluates every such route simultaneously and closes
+each one, then sharpens the rule-out itself by locating the exact definition in
+which the missing quantitative parameter is quantified out. All citations are
+to code actually present in this commit; the [A]/[B]/[C] levels of Part I
+continue to apply.
+
+## 27. Escape hatch (a): a contradiction from the trace refutations
+
+The strongest possible rescue would be a *reductio*: assume a massless
+constituent and derive a contradiction with `TraceTest` / `TraceExclusions`.
+This route is closed, and the closing is stated by the method itself.
+
+1. `YM/TraceExtension/Wick/Refute.lean` refutes exactly the class
+   `Collection := List (ℂ × Track)` — *finite* sums of mass-shell polynomial
+   tracks (`atPoint`, `tests`, `real_profile`). The module header says so
+   explicitly:
+
+   > "Exclusion against arbitrary finite polynomial field descriptions in the
+   > sense of the mass-shell kernels. Even an infinite-component direct sum of
+   > systems *with finite local polynomial image of the trace* and these
+   > necessary tested two-point identities cannot work. **No claim against a
+   > continuous-mass generalized free field.**"
+
+2. The theorem actually proved is `euclidean_excludes`
+   (`Refute.lean:69–77`): a finite collection trace (identified with the
+   Euclidean Laplace transform via `identifies_euclid`) cannot reproduce a UV
+   power-log asymptotic `EuclideanAsymptotic F A`, `0 < A` — the contradiction
+   is routed through `no_powerlog` against `real_profile`, i.e. against
+   *polynomial × power-log* behavior of a finite exponential sum.
+
+3. Now place the loophole class from Part III (a theory satisfying every proved
+   IR clause yet with full support of `(νletter).real` near zero) on this map.
+   Its near-zero behavior is a *continuous* spectral component (model M1: a
+   density ∝ u² on the cone). The refutation's excluded class is finite
+   discrete shells; the disclaimer covers the continuous case outright. For a
+   *genuinely interacting* theory — which is what the challenge's OPE
+   (`OperatorProductExpansion` with nontrivial integer weights) asserts this
+   construction produces — the two-point trace is not a finite exponential sum
+   at all: `identified_euclid` identifies the collection trace with the
+   Euclidean transform only under the hypothesis `TraceSpectrum F μ`, i.e. for
+   generalized-free-type trace data. The interacting loophole is not in the
+   hypothesis class of the refutation.
+
+**Conclusion 27.1.** The excluded class (finite discrete mass shells,
+generalized-free traces) and the mass-gap-violating class (continuous spectral
+support near zero for an interacting theory) intersect only on the trivial
+corner the header already disclaims. No reductio to Δ2 is available, and the
+method documents this itself. **Route (a): closed.**
+
+## 28. Escape hatch (b): the SNAG and ground-state layers
+
+`YM/SNAG/Escape.lean` achieves, by its own header, "Full SNAG achieved for
+target convention without assuming as a theorem": `theorem Orbit.total :
+S.Spectrum S.P` (`Escape.lean:52`). `YM/Ground/Spectrum.lean` adds `attains`
+(`:115`) — the C*-algebra form of irreducibility/vacuum-cyclicity: a mutually
+commuting family annihilating the vacuum is scalar — and `resolution` (`:127`).
+
+What SNAG delivers is the *spectral theorem for the generator*: the spectrum of
+the time-translation semigroup generator exists, is nonempty, and the heat
+kernels converge to the ground projection. This is exactly the level already
+consumed by `Completed.heat`: `bHeat s → P` with the resolvent-type bound. What
+SNAG does **not** and cannot deliver from its input class is a *lower bound* on
+the spectrum away from 0. Every input in the SNAG pipeline
+(`Dense`, `Unital`, `Kernels`, `Approx`) — dense orbit approximations, Feller
+kernel estimates, heat-semigroup approximants — is qualitative; none carries a
+rate. `attains` sharpens the picture *at the single point 0* (perfect
+eigenvalue, scalar commutant — the same content as `Completed.communant` and
+`mink (i)`), which is uniqueness of the vacuum, not isolation of the vacuum.
+
+**Conclusion 28.1.** The SNAG layer proves "the spectrum is where the generator
+says it is", never "the spectrum misses (0, m)". Both directions of a hypothetical
+upgrade fail: there is no gap-valued output anywhere in `YM/SNAG/*`, and there
+is no rate-valued input anywhere in `YM/SNAG/*` that could carry one. **Route
+(b): closed.**
+
+## 29. Escape hatch (c): the in-repo Tauberian layer, used as a producer
+
+Part III already used `YM/TraceExtension/LaplaceDensity.lean` and
+`LaplaceLimit.lean` in the consumer direction: from a Laplace-continuity
+hypothesis on all of `inside`, the positive-measure Tauberian machinery yields
+test-function consequences. Could the same machinery be run as a *producer* —
+consuming only the polynomial heat bound and emitting nullity?
+
+The layer's own type discipline answers this. Its hypothesis type
+`AllowsLaplace μ` (`LaplaceLimit.lean:12–15`) demands finite damped measures
+`lag μ u` for **every** `u ∈ inside` — that is, exponential damping of the
+measure at all positive Lagrange multipliers, which is precisely clause Δ3′.
+Its corollaries (`heat_value`, `identifies_euclid`, and in `LogScaling.lean`
+`transform_limit` at `:93` and `rescaled_energy` at `:120`, anchored at
+`Zlog r = r⁻⁸(log r)²` at `:20`) all take hypotheses of this strength or of
+`EuclideanAsymptotic` strength. Meanwhile Lemma 15.2 of Part III computes what
+the proved polynomial bound actually gives: the Laplace-transform tail
+∫ boltz s dμ ≤ C·Γ(3)·s⁻² — finite, polynomial, and *not* an exponentially
+damped measure for any `u ∈ inside`.
+
+**Conclusion 29.1.** The Tauberian layer is the *receiving end* of the bridge
+whose *sending end* is Δ1/Δ3′. It can consume Δ3′ (Laplace hypotheses) and
+deliver gap-relevant conclusions; it cannot produce Δ3′ from `heat (A)`. Using
+it as a producer is circular. **Route (c): closed as producer; confirmed as
+consumer.**
+
+## 30. The sharpened rule-out: where the missing parameter is quantified out
+
+Parts IV's ceiling was a statement about *output classes*. This pass can now
+localize it to a single definition, which is both more concrete and more
+damning. The proof of the quadratic slab bound is
+`light_bound` (`YM/EveryPhase/Light.lean:221–235`), and its assembly is:
+
+```lean
+theorem light_bound (w : SumOfWords S) (h : finite w) :
+    ∃ M : ℝ, 0 ≤ M ∧ ∀ i u, u ∈ Ioc (0:ℝ) 1 →
+      (νletter L i w).real (lowE u) ≤ M * u^2 := by
+  obtain ⟨M, hM, hμ⟩ := word_bound L w
+  obtain ⟨N, hN, hν⟩ := word_bound L (reverseP F.action.J w)
+  obtain ⟨R, hR⟩ := late L w h
+  let A := fee R (M+N) * (Probe.pref Space3)⁻¹ * (2*Real.pi)
+  ...
+  exact annulus (ν:=νletter L i (reverseP F.action.J w)) _ _
+    (add_le_add (hμ i) (hν i)) hu hv
+```
+
+with the core estimate `theorem annulus` (`Light.lean:43–48`):
+
+```lean
+theorem annulus {R M : ℝ} (hc : ∀ᵐ p ∂μ, p ∈ cone) (hd : ∀ᵐ p ∂ν, p ∈ cone)
+    (hs : μ.real univ + ν.real univ ≤ M) {u : ℝ} (hu : u ∈ Ioc (0:ℝ) 1)
+    (h : ∀ x : Space3, R < ‖x‖ → averaged A x = 0) :
+    μ.real (ringE u) ≤ fee R M * (Probe.pref Space3)⁻¹ * (2*Real.pi) * u^2
+```
+
+and `def fee (R M : ℝ) := volume.real (closedBall (0:Space3) R) * M *
+(2^3 * volume.real (closedBall (0:Space3) 1))` (`Light.lean:35`), `def ringE u
+:= time⁻¹' Ioc (u/2) u` (`:40`).
+
+Read the dependency list of `annulus` aloud and it exhausts itself:
+
+- `hc, hd` — cone support (qualitative);
+- `hs` — a *total mass* bound `M` (one number, no scale);
+- `h` — **qualitative locality**: `averaged A x = 0` for `‖x‖ > R`, a single
+  threshold with no decay, no rate, no shape;
+- the test-construction constants (`fee R M`, `pref⁻¹`, `2π`) and the spatial
+  bump of radius `~u` built inside the proof (`ContDiffBump (0:Space3)` with
+  radii `u, 2*u`).
+
+Every input that could in principle carry dynamics-with-a-scale is either
+collapsed to a single constant (`M`) or to a step function (`h` at threshold
+`R`). The exponent `2` in the conclusion is then *not* a dynamical fact being
+suboptimally estimated: it is the fixed point of the test construction (spatial
+bump of radius `u` against a time annulus of width `~u`, with total mass
+entering only through `M`), saturated exactly by the counterexample model M1
+(a density ∝ u² with full support at 0 satisfies `hc`, `hd`, `hs` for a valid
+`M`, and `h` for the same `R`). **No choice of constant inside this inference
+can distinguish M1 from a gapped theory, because the inference never receives a
+parameter that they differ on.**
+
+**Theorem 30.1 (quantification-out).** Let `AnnulusInput` be the conjunction of
+the hypothesis clauses of `annulus`: cone support, total-mass bound, and
+qualitative locality at some radius. Then:
+
+(i) every conclusion provable from `AnnulusInput` by the configuration used in
+`light_bound` (and hence every instance of `light (A)`) holds verbatim for the
+model M1;
+
+(ii) M1 violates Δ1 (it has mass-zero support density ∝ u² with no gap);
+
+(iii) consequently Δ1 is not derivable from `AnnulusInput` plus the five IR
+clauses (`mink`, `light`, `heat`, `euclid`, `commutant`) at level [A] — the
+independence of Part IV, Theorem 22.1 is now witnessed *inside the method's own
+definitions*, at the single spot where a dynamical scale (a decay rate of the
+averaged commutator, or a quantitative locality modulus) would have to enter
+and does not.
+
+This is the strongest form of the rule-out: not "the method's techniques are
+polynomial", but "**the method's input signature contains no slot for the one
+physical quantity (a commutator/locality decay rate) whose presence is the
+minimal difference between the proved package and the mass gap.**"
+
+## 31. The simultaneous rescue matrix
+
+Every previously open route, evaluated at once:
+
+| # | Route | Target clause | Mechanism available in-repo | Verdict |
+|----|-------|--------------|------------------------------|---------|
+| R1 | Trace reductio (Wick refutation) | Δ2 | `euclidean_excludes` vs `Collection := List (ℂ × Track)`; header disclaims continuous mass | **Closed** (§27) |
+| R2 | SNAG upgrade | Δ1/Δ3′ | `Orbit.total : S.Spectrum S.P`; rate-free inputs | **Closed** (§28) |
+| R3 | Tauberian as producer | Δ1 via Δ3′ | `AllowsLaplace` hypothesis = Δ3′ itself | **Closed** (§29; consumer only) |
+| R4 | Sharper constants in `annulus` | any | inputs contain no scale beyond `M`, `R`; saturated by M1 | **Closed** (Thm 30.1) |
+| R5 | Quantitative locality: replace `h : averaged A x = 0 for ‖x‖ > R` by a modulus `ω(R)` with decay | (candidate new clause Δ5) | none — no such input exists in `Final`/`Family`/`Table` signatures | **Open — the unique unblocked direction** |
+| R6 | Vertex-anchored Tauberian (build item N5) | Δ1/Δ3′ | architectural slot exists (`LogScaling`'s `EuclideanAsymptotic`/`Zlog`/`relative_limit`/`joint_limit` shape) | **Open — requires new dynamical input** |
+
+Two entries survive, R5 and R6, and they are the same requirement seen from two
+sides: R5 asks the *input type* to acquire a decay rate; R6 asks for a *new
+theorem* (Laplace/vertex asymptotics of the interacting theory) that would
+occupy a slot the Tauberian layer already builds. Neither is an improvement of
+the method; both are additions to it. This completes the rule-out: within the
+method — its signatures, its clauses, its inference patterns — there is no
+route to the mass gap. Across the method's boundary there are exactly two
+doors, and both are labeled "new quantitative dynamical input".
+
+## 32. Final consolidated verdict (five passes)
+
+1. **Part I.** The mass gap, in the repository's own public language, is the
+   conjunction of energy-gap nullity and light-shell nullity
+   (Theorem 5.1); its certificates are exponential-rate or nullity statements
+   (G1–G10).
+2. **Part II.** Under W2 support covariance, all seven failure scenarios
+   collapse to two primitive mechanisms (LIGHT-FORM, VERTEX-ACCUMULATION);
+   minimal input: IRG ∧ NL (Theorem 12.1).
+3. **Part III.** The infrastructure map fixes the exact hinge: `YM/Heat/
+   Duration.lean` damps exactly; `YM/EveryPhase/Decay.lean` (`decay`)
+   converts a quadratic slab to `Γ(3)·s⁻²`; the convert is an *equality-grade
+   saturation*, not a lemma en route to something stronger (Lemmas 15.1/15.2).
+4. **Part IV.** `Completed` proves the polynomial package uniformly in
+   character; Theorem 22.1: the proved output class is disjoint from the
+   certificate class; Theorem 24.1: the method is ruled out as a complete proof
+   engine, not as an object factory; boundary: Δ1/Δ2/Δ3′/Δ4.
+5. **Part V (this pass).** All in-package rescue routes are closed (R1–R4):
+   the trace refusal is self-disclaimed for the relevant class, SNAG is
+   qualitative in and qualitative out, the Tauberian layer consumes Δ3′ rather
+   than producing it, and the `annulus`/`fee`/`light_bound` chain quantifies
+   out the very parameter (a locality/commutator decay rate) whose absence IS
+   the mass gap's unprovability here. The rule-out is now boundary-tight: the
+   method's failure is located at a single input slot, and the two doors past
+   it (R5, R6) both require genuinely new quantitative dynamical input.
+
+Everything simultaneously evaluated; nothing inside the method reaches the mass
+gap, and the exact shape of what is missing — one number, a decay rate — is
+stated where it is missing: `fee R M` (`YM/EveryPhase/Light.lean:35`), the
+constant that contains everything the method permits itself to know.
