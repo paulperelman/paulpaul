@@ -744,3 +744,179 @@ The remaining problem is precisely N6 (with N7): a uniform infrared energy
 gap and the absence of lightlike spectral weight for the constructed phases.
 Everything else in the chain is proved or buildable from existing repository
 infrastructure.
+
+---
+
+# PART IV — fourth pass: the capacity ceiling of the method, all certificates evaluated simultaneously
+
+## 21. The full proved package in infrared terms
+
+The detailed theorem's per-character completion —
+`YM/EveryPhase/Extension.lean`, the structure `Completed` with
+`theorem all_characters : ∃ L : Almanac F, Completed F L` — is the complete
+inventory of what the construction proves about the spectrum *below the OPE
+scale*. Its fields, in the file's own terms (`zeroE` projection is the PVM at
+energy 0 on the full space; `bHeat` its boundary evolution `e^{−sH}`;
+`νletter L i A` the spectral measure of the word-state A in character i;
+`stands` the representing vector):
+
+| Clause of `Completed` | Content | Managed by |
+|---|---|---|
+| `isTheory`/`into_onto`/`isTheory (i)` | every character carries the Wightman realization (Part II §9) | reconstruction |
+| `mink (i) (x)` | `E({0})x = x ⟺ x ⃕ Ω` per character | Lemma 2.1, per character, **built into the package** |
+| `light (A) : ∃ M ≥ 0, ∀ i, ∀ u ∈ Ioc 0 1, νletter L i A (lowE u) ≤ M·u²` | **quadratic low-energy slab bound, uniform over all characters** for each finite word A | `light_bound L` |
+| `heat (A) : ∃ M ≥ 0, ∀ i, ∀ s ≥ 1, 0 ≤ ⟨ψ,(bHeat s − P)ψ⟩ ≤ M·s⁻²` | **heat-semigroup polynomial decay, uniform over all characters**, for each finite word A | `inverse_square L` |
+| `euclid (i) : UniqueHeat` | unique heat kernel per chamber | ground uniqueness on the Euclidean side |
+| `commutant (i)` | the commutant is scalars (irreducibility / factor) | no residual degeneracy |
+| `at_words`/`at_boundary`/`depends` | character averaging and continuity | mixture layer |
+
+Together with `Converges` (qualitative mesh-then-volume limits, **no rates**:
+`PublicWilson.lean`, the definition states only `Tendsto`) and the absence of
+any `Real.exp` estimate in the entire `YM/OS` layer, this characterises the
+method's infrared output class exactly.
+
+## 22. The polynomial ceiling
+
+**Theorem 22.1 (capacity ceiling). [A]** Let Π be the proved package (public
+`JointExistence` conclusions plus the detailed `TraceExclusions`, `NestedOPE`,
+contacts and `Completed`). Then:
+
+**(a) Output class.** Every infrared-flavored consequence of Π is a
+polynomial-rate or slab-bound statement: heat decay `⟨ψ,(bHeat s − P)ψ⟩ ≤ M·s⁻²` (with quadratic-form positivity), slab masses `ν(lowE u) ≤ M·u²`,
+volume and mesh limits without rates, and support statements only of the
+positive kind (inside the forward cone, at the vertex = ℂΩ).
+
+**(b) From quadratic form to operator norm.** For finite word states A with
+`(bHeat s − P) ≱ 0` and contractive (spectrum condition), 
+`‖(bHeat s − P)x‖² ≤ ⟨x,(bHeat s − P)x⟩ ≤ M·s⁻²,`
+so the package even yields a uniform operator bound `∖bHeat s − P‖ ≤ √M·s⁻¹` — still polynomial.
+
+**(c) Class separation.** No mass-gap certificate G1–G10 lies in the class of
+(a): G1/G2/G3 and NL are support-nullity statements; G4/G5/G7/G9 are
+exponential-rate statements; G8 requires a volume-uniform *lower* gap. By the
+model audit (§16: models M2, M4, M5) every slab/heat polynomial bound is
+satisfied by massless spectra candidates with arbitrarily regular densities; hence no
+inference from Π's output class to any certificate exists.
+
+**(d) Deployed techniques.** Every proof technique in the repository's
+dynamical layer — domination/integrability estimates on correlations, heat
+semigroup contraction, extraction of limits along `Extraction` subsequences,
+character averaging — produces statements in the class (a). The technique
+inventory contains no Tauberian step at the vertex (the only asymptotic
+theorem, `LogScaling`, is anchored at the ultraviolet cascade) and no support
+test on the light shell.
+
+**Corollary (the simultaneity verdict).** The method as specified cannot
+produce the mass gap, for a precise reason: *all its infrared theorems bind the
+wrong quantity* — they bound how much spectral weight is *small* (M·u²,
+M·s⁻²), while the gap is a statement about where spectral weight *is*.
+Between "quadratically small" and "zero below a threshold" there is no
+inference in the absence of a Tauberian/support step, and none is present.
+This is a capacity statement about the proof architecture, not about the
+constructed objects.
+
+## 23. The simultaneous evaluation matrix
+
+All certificates and architecture clauses, evaluated against the package Π in
+one view. Columns: is it inside Π? derivable by Π's deployed techniques?
+what single upgrade would reach it?
+
+| Target | In package Π? | Within Π's proof class? | Verdict / upgrade |
+|---|---|---|---|
+| G1 definition-level gap | no | no — support statement | clause; reached by Δ1+Δ2 below |
+| G2 tested-support gap | no | no | clause; formalizable once Δ1/Δ2 hold |
+| G3 energy-gap ⊕ no-light-form | half of it **proved**: `mink` gives per-character `E({0}) = ℂΩ` (outside Ω⊥) and UniqueHeat; the vertex atom is excluded; but low-energy nullity and light-shell nullity are absent | no | Δ1 (+`Ω` part free) and Δ2 |
+| G4 temporal Laplace clustering | no | no — exponential in class terms | Δ1: upgrade `light` from `≤ M·u²` to `ν(lowE u) = 0` for `u < m` |
+| G5 semigroup norm gap | **algebraic half proved**: UniqueHeat + `mink` = `ground = ℂΩ` per character; the rate `e^{−mt}` is absent | no | Δ3: upgrade `heat`'s `M·s⁻²` to `M·e^{−ms}` (uniform in i — the M is already uniform!) |
+| G6 spatial clustering | no | no — and only a necessary test | no upgrade needed for the gap route (G6 is a check, not a certificate) |
+| G7 zero-mode temporal rates | no | no | reduces to Δ1 |
+| G9 resolvent | no | no | reduces to Δ3 |
+| G10 Cheeger | no | outside inventory (no isoperimetry layer) | optional substitute for Δ3 on the lattice |
+| NL light-shell nullity `E⊥(lightshell) = 0` | **not touched at all** — `lowE` slabs only reach the energy axis; the shell at arbitrary momentum is beyond every proved bound | no | Δ2, independent of Δ1: an entirely new test family |
+| C4 character uniformity | **proved at polynomial level** (`M` uniform in i for `light`/`heat`) | yes | free at exponential level if Δ1/Δ3 are proved uniformly (same ∃M ∀i shape) |
+| A5 selection stability | not addressed: `WilsonExistence` quantifies `∀ p, ∃ q S F` with the table inside the `∃` | no | Δ4: add `∀`-phase quantification or selection stability |
+| A6 triviality | blocked in the trace channel (`excludes`, `wick`, `maxwell`, `invariant`) | yes (done) | satisfied for the tested channel |
+| A7 degeneracy | excluded (`mink`, `commutant`, `unique`) | yes (done) | satisfied |
+
+## 24. The rule–out, stated exactly
+
+**Theorem 24.1 (what is ruled out and what is not). [A]**
+
+(i) *Method as a complete proof engine — ruled out.* The package Π, plus any
+amount of additional work performed with Π's own deployed techniques
+(§22(d)), cannot yield `MassGap`: every such proof's statements remain in the
+polynomial-rate class, and by §22(c) the certificates are unreachable from
+that class. Diligence does not cross the boundary; only a change of statement
+class does.
+
+(ii) *Method as an object factory — not ruled out.* Nothing in Π contradicts
+the constructed phases being massive: the audit is over where the *proofs* can
+reach, not over what is true. The obstruction is epistemic (a missing clause
+type), not physical.
+
+(iii) *The boundary is exactly three clauses wide.* With:
+- **Δ1** (energy): `∃ m > 0, ∀ i, ∀ word A, νletter L i A (lowE u) = 0` for
+  every `u < m` — the nullity upgrade of the proved `light` clause;
+- **Δ2** (light-form): `∀ i, E⊥_i(lightshell ∖ {0}) = 0` — a new test family;
+- **Δ3′** (rate): `∃ m > 0, ∀ i, ∀ word A, ⟨ψ,(bHeat s − P)ψ⟩ ≤ M₀·e^{−ms}`
+  (Δ3′ is equivalent to Δ1 by Lemma 15.1/15.2; keep both forms, one for proof
+  production (heat-side) and one for use (slab-side));
+- **Δ4** (selection): quantify the gap clause over every refinable phase (or
+  prove its stability along `Extraction` subsequences);
+
+the specification `WilsonExistence + Δ1 (+Δ3′) + Δ2 + Δ4` entails
+`MassGap(m)` for every reconstructed selected phase, by Theorem 5.1 + 5.2 +
+Lemma 15.1 (the aggregate of Parts I–III). Conversely each clause is
+necessary: drop Δ1 and model M4/M5 satisfies Π-specification with no gap;
+drop Δ2 and M3 does; drop Δ4 and the selection architecture of A5 admits a
+gapless refinable phase with all per-phase clauses intact.
+
+## 25. The upgrade routes, mapped onto the repository
+
+- **To Δ1/Δ3′ (the energy side)** — three attack lines, all starting from
+  artifacts that exist:
+  1. *Volume/zero-mode analysis [new physics]:* prove `λ(V) ≥ λ₀` with
+     zero-mode control distinguishing tunneling (`e^{−σV}`) from A1/A2 collapse
+     (`V^{−α}`); descend along `Converges` + `Extraction` compatibility (§18 N6).
+  2. *Cheeger layer [new mathematics, finite-dimensional per volume]:* build
+     the Dirichlet-form interface for `YM.OS` semigroups on finite volumes;
+     G10 gives `λ₀` from isoperimetry; then descend as above.
+  3. *Vertex Tauberian [new port, highest leverage]:* re-anchor the
+     `LogScaling` architecture (structure of `EuclideanAsymptotic`, rescaled
+     measures `Zlog`, `relative_limit`/`joint_limit`) at the vertex: hypotheses
+     = large-τ scaling regimes of the *zero-mode temporal two-point*
+     (evaluable from the hierarchy); conclusions = positivity/l.s.c. of the
+     energy edge. Any future asymptotic infrared estimate then converts into
+     Δ1 automatically (§18 N5).
+- **To Δ2 (light-form)** — no slab bound touches the shell; the candidate
+  mechanisms are exactly the physical confinement inputs: positive string
+  tension arguments, or direct spectral tests via `Spectral.Frequencies`
+  criteria on a countable base of shell neighbourhoods, given Δ1 first (M3's
+  shell-with-cutoff must be separated from genuine confinement by photon-free
+  obstruction tests). In this architecture Δ2 inherits the structure of the
+  `maxwell`/`invariant` countertests: passed from representational (Fock
+  realizations) to spectral (light-shell nullity).
+- **To Δ4 (selection)** — either strengthen `WilsonExistence`'s `∃` to a
+  canonical table (uniqueness of the Gibbs accumulation phase) or restate the
+  gap clause `∀ S, F in the refinement tree`.
+
+## 26. Final verdict
+
+1. **The method is complete for its advertised goals** (Parts I–III scopes)
+   and its infrared inventory is internally strong: per-character uniqueness,
+   irreducibility, uniform slab and heat bounds — all proved.
+2. **The method is categorically short of the mass gap:** its infrared output
+   class (polynomial slab/heat bounds) is separated, by explicit spectre
+   models and by the absence of any Tauberian-or-support step at the vertex or
+   the light shell, from every formulation of the mass gap. The shortfall is
+   exactly four clauses: Δ1 (or equivalently Δ3′), Δ2, Δ4 — with Δ3′
+   equivalent to Δ1 — and those clauses are well-formed against existing API
+   surfaces (νletter, lowE, bHeat, zeroE, Completed's uniform-in-i shape).
+3. **Nothing about the objects is ruled out:** the capacity ceiling binds the
+   proof architecture, not the constructed phases. The rescue is the minimal
+   clause set of §24(iii) plus the three upgrade routes of §25.
+4. **The mass gap condition, in one line, for this architecture:**
+   upgrade the proved uniform-in-character quadratic slab bound
+   `νletter (lowE u) ≤ M·u²` to nullity below a threshold, add light-shell
+   nullity, and make the selection stable over refinements — everything else
+   in the chain is already proved, or already present as infrastructure.
