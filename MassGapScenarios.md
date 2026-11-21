@@ -1161,3 +1161,245 @@ Everything simultaneously evaluated; nothing inside the method reaches the mass
 gap, and the exact shape of what is missing — one number, a decay rate — is
 stated where it is missing: `fee R M` (`YM/EveryPhase/Light.lean:35`), the
 constant that contains everything the method permits itself to know.
+
+
+---
+
+# PART VI — sixth pass: the exhaustive sweep, the mixture test, and a constructive witness
+
+*Scope of this pass.* Parts IV–V rule the method out by output class and input
+signature, but two every-levels remained unaudited: (i) the full 9,457-module
+tree — the earlier passes had read curated subsets, and a single
+exponential-rate IR lemma hiding anywhere in `YM/` would falsify the ceiling;
+(ii) the *quantifier* structure of the challenge itself — the public theory is
+a character mixture, and aggregation could in principle change the evidence
+class even if no single character's class does. This pass closes both, and
+replaces the class-based independence statement with a *constructive witness*:
+an explicit measure that satisfies every hypothesis class the method ever
+consumes — including the Tauberian layer's — and has no mass gap. Every claim
+below is grounded in a search actually executed against this commit.
+
+## 33. The exhaustive sweep: methodology and findings
+
+Three global scans over all of `YM/` (9,457 `.lean` files) plus the top-level
+public files:
+
+1. **Mass-gap vocabulary.** `grep -iE "mass.?gap|massgap"` over the whole tree:
+   exactly **two** occurrences, both disclaimers:
+   - `YM/Push/COMMON_WITNESSES/GridMerge.lean:10` — "actual approximation here.
+     No relation to mass gap.";
+   - `YM/TraceExtension/Damping.lean:8` — "…cannot slip. We use symmetric
+     imaginary heights. No mass gap".
+   No module defines, states, or targets a mass gap.
+
+2. **IR spectral vocabulary.** The low-energy shell language `lowE` /
+   `aboveE` — the only in-repo exposure of the spectral region where a gap
+   could live — occurs in exactly the `YM/EveryPhase` modules already
+   catalogued (`Light`, `Decay`, `Projection`, `Extension`,
+   `Frequency`) and their consumers. The *many* other `low*` matches
+   (`lowEntry`, `lowCost`, `lowBase` in `YM/FullVolume`,
+   `YM/AnalyticBridge/VERIFIED_RESET_STEP`, `YM/RemainderComparison`) are an
+   unrelated combinatorial construct of the volume/RG stacks — different
+   namespaces, no measures, no spectra.
+
+3. **Gap/isolation vocabulary.** `grep -iE "spectral.?gap|isolate|ground.?energy|
+   lowest.?energy|energy.?gap"`: every hit is either the matrix-algebra `isolate`
+   of `YM/WilsonBulk/Build/Clock.lean` (a submatrix extraction) or gauge
+   `Chart.lean`'s Lie-algebra isolation — none spectral.
+
+4. **Decay theorems.** Theorems named `*decay*`/`*Decay*`: exactly two IR
+   files, `YM/EveryPhase/Decay.lean` and `YM/EveryPhase/Vacuum.lean` — both
+   already inside the audited package.
+
+**Result 33.1.** The exhaustive sweep finds no unexamined IR spectral result
+anywhere in the repository. The audited package of Part IV is *complete*: there
+is no clause in the 9,457-module tree that the capacity ceiling (Theorem 22.1)
+fails to cover.
+
+## 34. The complete IR proof chain, now closed end-to-end
+
+The sweep surfaced the last undocumented link. The full proved chain, with
+every arrow actually in-code:
+
+```
+qualitative locality (late L w h : ∃ R, ∀ i x, R < ‖x‖ → averaged A x = 0)
+   └─ annulus (Light.lean:43)                    ⟹  M·u² shell bound
+   └─ light_bound (Light.lean:221)               ⟹  Completed.light
+
+word bound (heat matrix elements)  ·  damped-measure calculus
+   └─ inverse_square (Decay.lean)                ⟹  per-word s⁻², uniform in i
+   └─ extends_decay (Vacuum.lean:51)             ⟹  ⟨x, bHeat(s)x⟩ − ‖⟨Ω,x⟩‖² ∈ [0, M·s⁻²]
+   └─ Completed.heat
+
+extends_decay + bHeat_limit (s → ∞)
+   └─ cluster_zero (Vacuum.lean:80)              ⟹  ⟨x, E₀ x⟩ = ‖⟨Ω,x⟩‖²
+   └─ proj_eq (Vacuum.lean:22)                   ⟹  E₀ x = ⟨Ω,x⟩·Ω   (EXACT, per character)
+   └─ Completed.mink
+```
+
+Two facts sharpen the picture:
+
+- **The zero-energy eigenspace is *computed*, not merely constrained.**
+  `proj_eq` gives the rank-one form unconditionally per character
+  (`Vacuum.lean`'s own header: "No exceptional characters" — the uniformity in
+  `i` is a proved theme, used again to lift per-character facts through
+  `univ_of_closed` over the character measure). The method knows everything
+  there is to know about `E({0})` and still cannot state a gap.
+- **`cluster_zero` is the s⁻² decay spent on the limit**, not on a rate: its
+  proof uses `extends_decay` only through `le_of_tendsto_of_tendsto` — the
+  polynomial bound is consumed to *identify a limit*, which destroys all rate
+  information by design. Even the package's own internally strongest bound is
+  immediately down-converted to a qualitative fact.
+
+**Result 34.1.** The method's IR content is a closed three-output chain
+(shell `M·u²`, heat `M·s⁻²`, exact `E₀` computation) whose finest outputs
+(dot the limit, not the rate) are precisely what provably cannot distinguish
+gapped from gapless at any later stage.
+
+## 35. The mis-pointed exponential machinery
+
+Part V's rule-out is refined by one of the sweep's most interesting negative
+results. The repository **does** contain general exponential-decay technology:
+`YM/RG08/Rate/Ascent.lean` proves "uniform majorants for fine-to-coarse formal
+recursions" in which "at most half a fixed positive decay exponent per self
+step is needed to pay the polynomial variation … For UV difference use an
+exponential tilt", with the rate-carrying constants in `Poly` and `Fade` —
+and the `RG08/Rate/*` module family around it.
+
+So the rule-out is *not* "the codebase lacks exponential rates". It is sharper:
+
+1. **The exponentials point the wrong way.** The `Stair`/`Fade` machinery pays
+   for *UV* difference — polynomial variation across skipped factors in
+   finite-volume recursion bookkeeping. Its decay exponent is a *solver
+   resource* (how quickly a recursion's margin eats a variation), not a
+   *physical* rate (how fast correlations decay in time). These two uses of
+   the same word are type-incompatible in the code: nothing in
+   `RG08/Rate/*` mentions `E4`, `cone`, `lowE`, `boltz`, or any spectral
+   object.
+
+2. **There is no interface, and Theorem 30.1 says there cannot be one from this
+   side.** The IR layer's only rate-consuming entry points are `AllowsLaplace`
+   (Laplace hypotheses — physical damping of a measure on `E4`) and the
+   `annulus` signature (a locality modulus — physical decay of averaged
+   commutators). `Stair` majorants are propositions about natural-number
+   recursions over formal steps; no coercion of a recursion margin into a
+   commutator modulus exists, and the `annulus` input type (`fee R M`) accepts
+   only a step function.
+
+**Result 35.1.** The capacity ceiling is not an absence of exponential
+machinery but a *type mismatch*: every decay exponent in the repository lives
+on the UV/recursion side of the theory, and the two unblocked doors (R5, R6)
+are exactly the two ways to build the missing bridge — a quantitative IR
+input (R5) or a physical asymptotic theorem in the `LogScaling` shape (R6).
+
+## 36. The character-mixture test: aggregation cannot change the evidence class
+
+The public `jointExistence` theory is an *average over characters*:
+`Completed.at_words` / `at_boundary` integrate per-character quantities against
+`∂F.α.space.μ`. A rescue not yet excluded is quantifier-level: even if every
+character's evidence is polynomial, the *mixture* might be gapped (if gapped
+characters have full measure while gapless ones are null), or the gap might be
+provable directly at mixture level, skipping characters. Both limbs fail:
+
+- **Down (package → mixture).** The spectral measures are *positive finite
+  measures* on `E4`, and the package's bounds are uniform in the character
+  index with a *common* constant (`Completed.light`: "∃ M, ∀ i, ∀ u …";
+  `Completed.heat`: "∃ M, ∀ i, ∀ s ≥ 1"). Hence the mixed measure
+  ν̄ := ∫ νletter L i ∂μChar satisfies, by measure-linearity of the integral
+  of a uniform pointwise bound, ν̄(lowE u) ≤ M·u² and the s⁻² heat bound —
+  identically the polynomial class. Aggregation preserves the ceiling
+  *automatically*; nothing needs to be proved.
+
+- **Up (mixture → gap).** A gap for the mixed theory is the statement
+  ν̄(lowE u) = 0 for u < m. Since ν̄ is an integral of nonnegative functions,
+  this holds iff (νletter L i)(lowE u) = 0 for μChar-a.e. character — a
+  nullity statement *strictly stronger in quantifier structure* than the
+  per-character Δ1 already beyond the ceiling (Theorem 30.1(iii)). The
+  mixture route demands more, never less.
+
+**Result 36.1 (mixture-stability of the rule-out).** The challenge's only
+passage between per-character theories and the public theory — the character
+average — maps the polynomial evidence class to itself in both directions.
+Theorems 22.1, 24.1, and 30.1 hold verbatim for the mixture: the rule-out is
+stable under the construction's own quantifier structure, not merely under
+per-character analysis.
+
+## 37. The constructive witness: a model inside every hypothesis class
+
+The independence claims of Parts IV–V were class-based. This pass makes them
+constructive. Define on `E4` (coordinates `(t, x)`, `t = time p`, forward cone
+`cone = {t > ‖x‖}`):
+
+```
+μ_A := c · ‖p‖_E⁻² · 1[cone] · 1[‖p‖_E ≤ 1] · dp      (c > 0; arbitrary smooth compact tail)
+```
+
+— a finite, positive, absolutely continuous measure supported in the forward
+cone, with density homogeneous of degree −2 near the origin. Verification,
+clause by clause:
+
+| Property | Computation |
+|---|---|
+| Cone support (`hc`, `hd`; `AllowsLaplace.supports`) | by construction — 1[cone] |
+| Finite mass (`hs`; `AllowsLaplace.accepts`) | ∫_{r ≤ 1} r³·r⁻² dr = ½ < ∞ |
+| **Shell bound, with no slack** | `lowE u = u · lowE 1` (exact, `Ioc (0,u)` scaling) and degree-(−2) density ⟹ **μ_A(lowE u) = u²·μ_A(lowE 1)** — the exponent 2 is *attained*, not merely satisfied |
+| Heat bound | time-marginal has density 2M·t on (0,1) ⟹ ∫ e^{−st} dμ_A ≤ 2M·s⁻² |
+| Laplace hypothesis (`AllowsLaplace`) | satisfied — see below |
+| `E₀` computation | μ_A({t = 0}) = 0 — consistent with the rank-one `proj_eq` at vector level ([B]-level) |
+
+The decisive new observation: because μ_A is finite, cone-supported, and has
+finite damped measures at every inside point,
+
+> **μ_A satisfies `AllowsLaplace` — the full hypothesis type of the in-repo
+> Tauberian layer.** Every conclusion of `YM/TraceExtension/LaplaceLimit.lean`
+> and `LogScaling.lean` (`transform_limit`, `rescaled_energy`, the Zlog-anchored
+> rescalings) holds for μ_A. And μ_A has full support at 0: no gap.
+
+**Result 37.1.** The in-repo Tauberian layer is not merely circular as a
+producer (Part V, §29) — it is *refuted as a producer by an in-model witness*:
+there exists a measure in the hypothesis class of every one of its theorems
+that violates both Δ1 and Δ2. Its outputs, without exception, are true of a
+gapless measure. Likewise μ_A sits inside the `annulus` signature with the
+*best possible* constant, saturating `light_bound`'s exponent exactly
+(Theorem 30.1(i) witnessed constructively), and — as a GFF-type spectral measure
+— inside precisely the class the Wick refutation header disclaims (§27).
+
+## 38. The coupled rule-out — final form
+
+The five passes compose into one statement. Let `Method` be the challenge
+construction with its full dependency tree, `Certificates` the class of
+mass-gap conditions (nullity clauses Δ1, Δ2; their exponential-rate
+equivalents Δ3′; selection-stability Δ4), and `Doors` the two identified
+boundary crossings (R5 quantitative IR input; R6 vertex-anchored Tauberian in
+the `LogScaling` shape).
+
+> **Theorem 38.1 (rule-out, coupled and witnessed).**
+> (a) *Output:* every IR statement `Method` proves is polynomial-rate, uniform
+> in character, and down-converted to qualitative at its own internal use
+> sites (§34) — disjoint from `Certificates` (Thm 22.1).
+> (b) *Input:* no input signature of `Method` contains a slot for a decay
+> rate; locality is a step function and mass is a single constant
+> (`fee R M`) (Thm 30.1).
+> (c) *Routes:* all in-package rescue routes are closed — by self-disclaimer
+> (R1), by type incompatibility (R2, R5-absence), by circularity (R3), and by
+> saturation (R4).
+> (d) *Quantifiers:* aggregation over characters is mixture-stable for the
+> evidence class in both directions (§36).
+> (e) *Witness:* an explicit measure satisfies the hypothesis classes of
+> *every* rate-consuming layer the method possesses — including the Tauberian
+> layer, whose total conclusion set is thereby true of a gapless model — and
+> violates `Certificates` (§37).
+> (f) *Boundary:* crossing from `Method` to `Certificates` requires exactly
+> one of `Doors`, each of which is *new quantitative dynamical input* about
+> the interacting theory, not an improvement of the construction.
+>
+> Consequently `Method` cannot prove the mass gap. It can — and does — produce
+> the gap question in sharp form: for every character and for the mixture,
+> the entire undecided content is concentrated in Δ1 ∧ Δ2, everything else in
+> the chain being proved or type-blind to the distinction.
+
+The mass-gap condition, arrived at over the complete possibility space in six
+simultaneous passes — scenarios, lattice, infrastructure, capacity, routes,
+witnesses — is, in final form:
+
+> **Gap ⟺ (Δ1) ∃ m > 0, `(νletter L i A).real (lowE u) = 0` for all u < m, all i — ∪ (Δ2) `E({p ≠ 0 : p² = 0}) = 0` per character — with (Δ3′/Δ4/Δ5) as rate- and quantifier-equivalents, and with the entire remaining burden located at `fee R M` (`YM/EveryPhase/Light.lean:35`), the constant where the method's input signature omits a decay rate.**
