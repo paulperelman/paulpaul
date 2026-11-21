@@ -1403,3 +1403,162 @@ simultaneous passes — scenarios, lattice, infrastructure, capacity, routes,
 witnesses — is, in final form:
 
 > **Gap ⟺ (Δ1) ∃ m > 0, `(νletter L i A).real (lowE u) = 0` for all u < m, all i — ∪ (Δ2) `E({p ≠ 0 : p² = 0}) = 0` per character — with (Δ3′/Δ4/Δ5) as rate- and quantifier-equivalents, and with the entire remaining burden located at `fee R M` (`YM/EveryPhase/Light.lean:35`), the constant where the method's input signature omits a decay rate.**
+
+
+---
+
+# PART VII — seventh pass: the all-orders ceiling, the sharpened boundary, and the completed door census
+
+*Scope of this pass.* Two ceilings remained unset. (i) The capacity ceiling was
+stated against *quadratic* rates; a skeptic could still hold that some
+refinement proving uniform bounds of *every* polynomial order might exist
+inside the method's technique — Theorem 22.1 rules out the class actually
+proved, not the class of all conceivable polynomial upgrades. (ii) The door
+census (R5/R6) was not provably exhaustive: it classified the doors visible
+from the package's signatures, but a third door type — analytic-structural
+arguments in the Jost–Lehmann–Dyson style — was neither opened nor closed, and
+it is special: it consumes *only inputs the method already has*. This pass
+closes (i) with a second constructive witness and completes (ii), yielding the
+final coupled rule-out.
+
+## 39. The all-orders ceiling: a flat-spectrum witness
+
+The witness M1 of §37 saturates the quadratic exponent. A sharper question:
+can the package distinguish a spectral measure that satisfies **every
+polynomial bound to all orders** from a gapped one? If yes, some exponential-
+adjacent information hides in the all-orders polynomial refinement; if no, the
+dividing line is exactly "exponential versus polynomial", with no intermediate
+territory.
+
+Define M2 on `E4` by its time-marginal m2 with density
+`g(t) := c · e^(−1/t) · 1[0 < t ≤ 1]` (spread uniformly on time-slices inside
+the cone, as in §37), `c > 0`:
+
+| Property | Computation |
+|---|---|
+| Cone support, finite mass, `AllowsLaplace` | as for M1 (§37) |
+| Shell bounds, **all orders** | for every `k`, `∫₀ᵘ c·e^(−1/t) dt ≤ M_k·u^k` on `(0,1]` (e^(−1/t) decays faster than any power) — the *strongest conceivable polynomial refinement* of `light` holds |
+| Heat bounds, all orders | `∫₀¹ e^(−st)·c·e^(−1/t) dt ≍ s^(3/4)·e^(−2√s)` (saddle at `t* = s^(−1/2)`) — faster than any `s⁻ᵏ` |
+| Laplace hypothesis | satisfied — every in-repo Tauberian conclusion holds for M2 |
+| Δ3′ (uniform exponential heat rate) | **violated**: `s^(3/4)·e^(−2√s)` is slower than every `e^(−m·s)` |
+| Mass gap | **none** — full support on `⟨0, 1]` |
+
+**Theorem 39.1 (all-orders ceiling).** Let `PolyAll` be the hypothesis class
+obtained from the package's IR clauses by upgrading the quadratic slab to
+uniform bounds `M_k·u^k` for *all* `k` (and the heat bound to all inverse
+powers). Then `PolyAll` still does not imply Δ1: it holds, verbatim and with
+witnessed constants, for M2, which has no gap. Consequently the capacity
+ceiling of Theorem 22.1 is not an artifact of the power `2`: no finite or
+countable family of polynomial upgrades, no matter how proved inside the
+method's damped-measure technique, crosses the dividing line — which is
+exactly *exponential-in-time versus polynomial*, with nothing between.
+
+## 40. The sharpened boundary: quantitative locality is insufficient in every polynomial (indeed subexponential) form
+
+Part V left R5 (replacing the step-function locality input of `annulus` by a
+decay modulus) as the *unique unblocked input door*, without assessing whether
+passing through it would help. M2 settles this:
+
+- M2, read as the spectral measure of a GFF-type pseudo-theory with totally
+  flat low spectrum, has position-space correlation decay governed by the
+  same saddle: averaged commutator tails `~ R^(−3/4)·e^(−2√R)` — **a decay
+  modulus, and one that beats every polynomial modulus**.
+- Any form of R5 that posits a locality modulus `ω(R)` which is itself
+  polynomial or subexponential (every form short of an exponential rate) is
+  therefore satisfied by M2 as well; `annulus`'s inference — already saturated
+  by M1 — cannot gain an exponent from it, and Δ1 remains unreachable.
+
+**Result 40.1.** R5 is not merely "unblocked but open": in every
+subexponential form it is *provably insufficient* (M2). The only input-class
+upgrade that can possibly work is an exponential-in-time rate — which is
+Δ3′ itself, i.e. the goal restated. The census of Part V collapses: there is
+*one* input door (Δ3′/Δ5-exponential), and it is equivalent to the target; so
+far as input types are concerned, **the method's boundary admits no entrance**.
+
+## 41. The completed census: the analytic-structural door (R7)
+
+One door type remains, and it is qualitatively different from R5/R6. A
+Jost–Lehmann–Dyson-type argument consumes exactly the inputs the method
+*already has as proved or assumed structure of the recovered per-character
+theories*:
+
+| JLD prerequisite | Status in the package |
+|---|---|
+| Spectrum condition (forward-cone support) | `W0` via `positiveEnergy`; `hc/hd` in `annulus`; `AllowsLaplace.supports` |
+| Local commutativity (spacelike vanishing) | `spacelikeWords` / `op_comm` (`YM/EveryPhase/Polynomials.lean:87,106`); `Docks.lean`, `Shell.lean` (`spaceLikeGen`) |
+| Tube analyticity of Wightman functions | `W2` `spectralRepresentation`; `YM/EveryPhase/Strip.lean` (strip derivatives); `YM/Analytic*` layers |
+| Positive measure representation | `νletter`, `LaplaceDensity`, `LaplaceLimit` |
+
+Nothing in the type system separates R7 from the method: no new input class is
+required. What is required is a *deep new theorem*: the JLD envelope
+computation for two-point functions of the recovered theory's operators,
+showing the envelope's boundary excludes the origin — and in four dimensions,
+such gap conclusions from JLD exist only under additional channel-symmetry or
+isolation assumptions that the fundamental mass gap cannot presuppose. The
+sweep confirms no JLD/Lehmann–Dyson machinery exists anywhere in the
+repository (all `envelope` hits are complexification/integrability envelopes
+of the volume stacks). R7 is therefore the *space where the open mathematical
+problem itself lives*: neither inside the method (no such theorem is proved,
+and Part V's witnesses show none of its inference patterns can yield it) nor
+outside its input signature (no new input needed). **The door census is now
+complete and exhaustive in the only sense available:**
+
+- **R5** — input door — provably insufficient in every subexponential form (§40);
+- **R6** — theorem door with new input type (Laplace/vertex asymptotics à la `LogScaling`);
+- **R7** — theorem door with *existing* input types (JLD-type envelope) — the
+  genuine open problem, unproven and not provable from the package (witnesses M1/M2);
+- **Δ3′** — equivalent to the goal by Lemmas 15.1/15.2.
+
+## 42. Master theorem — coupled rule-out, exhaustive relative to the method
+
+> **Theorem 42.1.** Let `Method` be the challenge construction with its proved
+> package (`Completed`), its input signatures (`annulus`/`fee`, `AllowsLaplace`),
+> and its inference patterns. Then:
+> (a) every IR statement it proves is polynomial, uniform in character, and
+> internally down-converted to qualitative (Thm 22.1, §34);
+> (b) this persists under *all* polynomial refinements — witnessed
+> constructively by M1 (quadratic saturation) and M2 (all-orders flat
+> spectrum) inside every hypothesis class it consumes, including the Tauberian
+> layer's (Thm 30.1, §37, Thm 39.1);
+> (c) it persists under character aggregation in both quantifier directions
+> (§36);
+> (d) every rescue route inside it is closed — by self-disclaimer (R1), by
+> type incompatibility (R2), by circularity and by in-model refutation (R3),
+> by saturation (R4);
+> (e) its input boundary admits no entrance: the sole non-equivalent input
+> upgrade (a locality modulus) is insufficient in every subexponential form,
+> and the exponential form is the goal itself (§40);
+> (f) the only exits are the three-door census of §41, none of which lies
+> inside `Method` (two require new input types; the third requires a deep
+> analytic theorem whose general 4d form is precisely the open problem, and
+> which the witnesses M1/M2 prove cannot follow from any of the package's
+> hypothesis classes).
+>
+> Hence **`Method` cannot prove the mass gap** — as witnessed by explicit
+> models inside each of its own hypothesis classes, stable under its own
+> quantifier structure, with a complete and verified census of its boundary.
+> The mass-gap condition, final form over seven passes:
+>
+> **Gap ⟺ (Δ1) ∃ m > 0: `(νletter L i A).real (lowE u) = 0` for all u < m, all i — ∪ (Δ2) `E({p ≠ 0 : p² = 0}) = 0` per character; equivalent rate-form Δ3′; every remaining door out of the method is one of {R6: new Laplace/vertex asymptotic input, R7: JLD-type envelope theorem from existing inputs}, and `fee R M` (`YM/EveryPhase/Light.lean:35`) marks the slot where the required input would enter and does not exist.**
+
+## 43. Final verdict — seven passes, one sentence each
+
+1. **Part I.** Scenario space catalogued; the gap is nullity conjunction, its
+   certificates are rate statements (Thm 5.1, 5.2).
+2. **Part II.** All scenarios collapse to two mechanisms under covariance;
+   minimal input IRG ∧ NL (Thm 8.1, 12.1).
+3. **Part III.** The infrastructure hinge is exact: damping and decay
+   saturate at Γ(3)·s⁻² — an endpoint, not a rung (Lemmas 15.1/15.2).
+4. **Part IV.** Proved output class (polynomial, uniform) is disjoint from
+   the certificate class; method ruled out as engine, not as factory (Thm
+   22.1, 24.1).
+5. **Part V.** All in-package rescue routes closed; the missing parameter — a
+   locality decay rate — is located at a single definition: `fee R M` (Thm 30.1).
+6. **Part VI.** Exhaustive sweep: the package is complete over the whole tree;
+   the ceiling is mixture-stable; a gapless measure sits inside every
+   hypothesis class, including the Tauberian layer's (Results 33.1, 36.1, 37.1).
+7. **Part VII (this pass).** The ceiling tolerates *all* polynomial refinements
+   (M2, flat spectrum); the unique input door is provably insufficient in
+   every subexponential form; the census is complete, and the single door
+   reachable from existing inputs (JLD-type) is the open problem itself,
+   excluded from the method by the same witnesses (Thm 39.1, 40.1, 42.1).
