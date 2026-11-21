@@ -1664,3 +1664,154 @@ method and machine-checked where checkable. Further passes can deepen *R6 and
 R7 themselves* (draft the Tauberian or envelope architecture against
 `LogScaling`/`pillar` shapes), but no further pass can strengthen the
 rule-out of the method: its boundary is canvassed, witnessed, and verified.
+
+
+---
+
+# PART IX — ninth and final pass: the gap reduced to one number, and the two doors drafted
+
+*Scope of this pass.* Part VIII established that the rule-out is saturated.
+What remained un-drafted is the *constructive specification* of its boundary:
+the exact form of the two surviving doors (R6, R7), stated against signatures
+actually present in the repository. This pass supplies it — and in doing so
+makes the sharpest compression of all nine passes: **for this method, the
+entire mass gap is the positivity of one scalar number per character and
+word**, and the mechanism converting that number into the nullity clauses is
+*already proved in the repository*, in weaker forms than needed. As before:
+Lean fragments are uncompiled; [A]/[B]/[C] labels carry over.
+
+## 48. The gap as one number: `m⊥` and the in-repo conversion
+
+The elementary consumer is `damped_lower` (`YM/TraceExtension/PolynomialGrowth.lean:15`):
+
+```lean
+lemma damped_lower (μ : Measure E4) {R : ℝ} {s : ℝ} (hs : 0 ≤ s) :
+    ENNReal.ofReal (Real.exp (-s*R)) * μ {p | time p ≤ R}
+      ≤ OS.Semigroup.transform timeAxis s μ univ
+```
+
+— the low slab's mass, scaled by the damping factor *at the same parameter*,
+is bounded by the damped total (`OS.Semigroup.transform timeAxis s μ univ` =
+`lag μ (s·e₁)`, the ∫ e^(−s·time) total, per `YM/Heat/Duration.lean`). Now
+define the number:
+
+```lean
+def LaplaceRate (μ : Measure E4) : ℝ≥0∞ :=
+  ⨆ m : ℝ≥0, {m | ∃ C : ℝ≥0, ∃ s₀ : ℝ, ∀ s ≥ s₀,
+      lag μ (s • basis timeAxis) univ ≤ C * Real.exp (-(m*s))}
+```
+
+(uncompiled; `lag` = `OS.Semigroup.transform`, both in-repo).
+
+> **Theorem 48.1 (rate-to-nullity; [A] in the ⟸ direction).** For a positive
+> finite measure μ on `E4` and every `R < m`, if `LaplaceRate μ ≥ m` then
+> `μ {p | time p ≤ R} = 0`.
+> *Proof.* Fix `s ≥ 1`. By `damped_lower` and the rate hypothesis,
+> `μ {time ≤ R} ≤ e^{s·R}·lag μ (s·e₁) ≤ C·e^{−s(m−R)}`. Let `s → ∞`: the
+> right side vanishes for `R < m`; a measure-real is ≥ 0 and ≤ 0. ∎ (three
+> lines, consuming only an in-repo lemma and ∀-elimination).
+
+> **Theorem 48.2 (the gap is one number; [B] in the converse).** For the
+> package's per-character letter measures, clause Δ1 is equivalent to
+> `LaplaceRate (νletter L i A) > 0`, and `LaplaceRate μ` equals the Abelian
+> quantity `lim inf_{s→∞} −(1/s)·log (lag μ (s·e₁) univ)`. The witnesses
+> evaluate it: `m⊥(M1) = m⊥(M2) = 0` (their transforms decay as `s⁻²` and
+> `s^(−3/4)e^(−2√s)` respectively — subexponential), while any gapped theory
+> has `m⊥ ≥ its gap`.
+
+**Result 48.3.** The nine passes compress to: *the package proves everything
+about every character except the positivity of `m⊥`; it proves `m⊥ = 0 is
+consistent` (the witnesses are inside its hypothesis classes); and its
+conversion machinery (`damped_lower`, `lower_energy` at
+`LogScaling.lean:108`, `energyBudget` at `PolynomialGrowth.lean:12`) is
+already built and would finish the gap from a single exponential datum it
+never receives.* The package's proved bounds (`s⁻²`, `Γ(3)`-saturated) are
+exactly the evaluation `m⊥ = 0` — not a weaker estimate en route to `m⊥ > 0`,
+but the *value the method's inputs force*.
+
+## 49. R6, drafted: the vertex-anchored Tauberian architecture
+
+The door R6 is now a *named theorem slot* with in-repo shape models. The UV
+anchor of `LogScaling.lean` is `Zlog r = r⁻⁸(log r)²` with
+`EuclideanAsymptotic F A : Tendsto (Zlog r · (euclidean F r⁻¹).re) atTop A`
+(`LogScaling.lean:20,74`). The IR dual, which would occupy the R6 slot:
+
+```lean
+def Zlow (r : ℝ) : ℝ := r^8 * (Real.log r)^2          -- dual anchor, r → 0+
+structure InfraredAsymptotic (word : SumOfWords S) (B : ℝ) : Prop where
+  damped : Tendsto (fun s => Zlow (1/s) * (e^(m₀*s) *
+      (lag (νletter L i word) (s • basis timeAxis) univ - vacuumpart word)))
+    atTop (𝓝 B)                  -- rescaled, exponentially tilted damped mass
+```
+
+with consumer lemmas mirroring `transform_limit` / `compact_limit`
+(`LogScaling.lean:93,137`) transported through Theorem 48.1 to
+`LaplaceRate > 0`. What the draft fixes precisely:
+
+- the *shape* is in-repo (every lemma it needs has an exact UV twin);
+- the *conclusion* is `m⊥ ≥ m₀ > 0`, i.e. Δ1 by Theorem 48.1;
+- the *hypothesis* `B > 0` of exponential-flat type is the new dynamical input
+  — absent from every signature (census 45.1), unprovable from the package
+  (witnesses: `m⊥ = 0` for models inside all its hypothesis classes).
+
+Status: architecture [A]-defined, theorem [C]-open. This is build item N5 of
+Part III, now specified to statement level.
+
+## 50. R7, drafted: the envelope architecture in the `pillar` shape
+
+R7's skeleton against `pillar` (`YM/UVExtension/Crown/Sides.lean`):
+`pillar (hf : DifferentiableOn ℂ f green) (hp : ∀ x ∈ green, ‖f x‖ ≤ b·e^M)
+(h : ∀ i, |i| ≤ 1 → ‖f i‖ ≤ b) (t) : ‖f (t·I)‖ ≤ b·e^{4·t·M}` — Phragmén–
+Lindelöf unique continuation in a rectangle strip. The R7 module would:
+
+1. take `f` = the Fourier–Laplace transform of the word commutator (in-repo
+   analyticity: `W2`, `Strip.lean`; locality input: `op_comm`, `Polynomials.lean:106`);
+2. run `pillar` to propagate boundary data (known polynomial behavior on real
+   directions — exactly what the package proves) across the strip to the
+   complex vertex directions;
+3. conclude support exclusion for the commutator transform in the light-shell
+   wedge (`Jost–Lehmann–Dyson envelope`), transported to Δ2 via the
+   tested-support machinery of `YM/Spectral/Frequencies.lean`.
+
+The exponential datum again enters as an *assumed* `M`-type (`pillar`'s
+hypothesis): the census (45.1) applies verbatim — the tool exists, its input
+does not, and for R7 the missing datum is precisely an a-priori type bound for
+the commutator transform, i.e. dynamical input one level. R6 and R7 are
+independent doors: R6's hypothesis (exponential damping of the letter measure)
+does not give R7's (strip type bounds of the commutator transform) and vice
+versa; both target the same two clauses (Δ1, Δ2) via Theorem 48.1 and the
+spectral support criterion respectively.
+
+## 51. The hypothesis-need matrix — everything simultaneously, final form
+
+| Target | Minimal missing hypothesis | In-repo consumer | Blocked by |
+|---|---|---|---|
+| Δ1 (shell nullity) | `LaplaceRate νletter > 0` (one number) | **proved**: `damped_lower` → Thm 48.1 | M1, M2 (`m⊥ = 0` inside package) |
+| Δ2 (light-shell nullity) | envelope/commutator support exclusion | `Frequencies.lean` criterion present | absent input class; M1-type models |
+| Δ3′ ≡ Δ1 | exponential heat rate | `decay` (`EveryPhase/Decay.lean`) proves the polynomial shadow | M2 |
+| Δ4 (selection stability) | ∀-phase quantifier of `WilsonExistence` | none | quantifier structure (`Extension.lean` per-character) |
+| R5 (input door) | locality modulus | `annulus` accepts only a step function | insufficient in every subexponential form (§39–40) |
+| R6 (theorem door) | `InfraredAsymptotic` with `B > 0` | architecture mirrored from `LogScaling` | new dynamical input (census 45.1) |
+| R7 (theorem door) | commutator-transform type bound `M` | architecture mirrored from `pillar` | new dynamical input (census 45.1) |
+
+## 52. Final verdict — nine passes
+
+> **The method cannot prove the mass gap; and the reason is now a single
+> sentence.** For every character and word, the package's proved IR content
+> evaluates the scalar `m⊥ := LaplaceRate (νletter L i A)` and finds only that
+> `m⊥ = 0 is consistent` — the witnesses M1/M2 sit inside every hypothesis
+> class it consumes, with 30–50-digit verification; its own proved lemmas
+> (`damped_lower`) would convert `m⊥ > 0` into the full nullity clause Δ1 in
+> three lines; the exponential census shows the required positivity is never
+> derivable from its signatures; and the two doors past the boundary are
+> drafted to statement level (R6: `InfraredAsymptotic`, twin of `LogScaling`;
+> R7: envelope propagation, client of `pillar`), both requiring dynamical
+> input the method does not possess, neither following from the other.
+>
+> **Gap ⟺ `m⊥ > 0` per character (shell form Δ1) ∪ light-shell nullity (Δ2); the exits are R6 and R7 as drafted in §§49–50; `damped_lower` (`PolynomialGrowth.lean:15`) is the proof that the construction already knows how to finish — and `fee R M` (`Light.lean:35`) is the proof that it never starts.**
+
+This closes the program of the nine passes: scenarios (I), lattice (II),
+infrastructure (III), ceiling (IV), route closure (V), sweep + witness (VI),
+all-orders boundary (VII), verification + census (VIII), reduction to one
+number + door specification (IX). The rule-out is complete; the two drafted
+doors are the exact site of the remaining mathematics.
