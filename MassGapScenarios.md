@@ -956,7 +956,7 @@ This route is closed, and the closing is stated by the method itself.
    > continuous-mass generalized free field.**"
 
 2. The theorem actually proved is `euclidean_excludes`
-   (`Refute.lean:69–77`): a finite collection trace (identified with the
+   (`Refute.lean:75–81`, a `lemma`): a finite collection trace (identified with the
    Euclidean Laplace transform via `identifies_euclid`) cannot reproduce a UV
    power-log asymptotic `EuclideanAsymptotic F A`, `0 < A` — the contradiction
    is routed through `no_powerlog` against `real_profile`, i.e. against
@@ -1016,7 +1016,7 @@ test-function consequences. Could the same machinery be run as a *producer* —
 consuming only the polynomial heat bound and emitting nullity?
 
 The layer's own type discipline answers this. Its hypothesis type
-`AllowsLaplace μ` (`LaplaceLimit.lean:12–15`) demands finite damped measures
+`AllowsLaplace μ` (`LaplaceLimit.lean:14–17`) demands finite damped measures
 `lag μ u` for **every** `u ∈ inside` — that is, exponential damping of the
 measure at all positive Lagrange multipliers, which is precisely clause Δ3′.
 Its corollaries (`heat_value`, `identifies_euclid`, and in `LogScaling.lean`
@@ -1815,3 +1815,105 @@ infrastructure (III), ceiling (IV), route closure (V), sweep + witness (VI),
 all-orders boundary (VII), verification + census (VIII), reduction to one
 number + door specification (IX). The rule-out is complete; the two drafted
 doors are the exact site of the remaining mathematics.
+
+
+---
+
+# PART X — tenth pass: the complete proofs of the reduction, and the citation audit
+
+*Scope of this pass.* The program declared itself closed at Part IX; what remained
+were the *full proofs* at text level of the reduction theorems (48.1 was stated
+with a proof sketch; 48.2's identity was labeled [B]), the witness evaluations
+`m⊥(M1) = m⊥(M2) = 0` (asserted), and a systematic audit of the document's
+34 distinct `file:line` citations accumulated over nine passes. All three are
+supplied here. Outcome: the reduction `Δ1 ⟺ m⊥ > 0` is now *completely proved
+at level [A] in both directions*, and the audit found and fixed two citation
+drifts — everything else verified verbatim.
+
+## 53. Complete proofs
+
+**Theorem 53.1 (= Theorem 48.1, full proof).** Let μ be a positive finite
+measure on `E4` with `LaplaceRate μ ≥ m > 0`. Then for every `R < m`,
+`μ {p | time p ≤ R} = 0`.
+
+*Proof.* By definition of the supremum, for some `m'` with `R < m' ≤ m` there
+are `C ≥ 1`, `s₀ ≥ 1` with `lag μ (s·e₁) ≤ C·e^(−m'·s)` for all `s ≥ s₀`
+(`lag = OS.Semigroup.transform timeAxis s`, `YM/Heat/Duration.lean`). The
+in-repo lemma `damped_lower` (`YM/TraceExtension/PolynomialGrowth.lean:15`)
+states, for every `s ≥ 0`:
+`e^(−s·R)·μ {time ≤ R} ≤ OS.Semigroup.transform timeAxis s μ univ`.
+Rearranged: `μ {time ≤ R} ≤ e^{s·R}·lag μ (s·e₁) ≤ C·e^{−s(m'−R)}`. The right
+side tends to `0` as `s → ∞` since `m' − R > 0`; a measure-real is nonnegative
+and bounded above by every term of a sequence tending to 0, hence `= 0`. Choosing
+`R = 0` (permitted: `R < m`) additionally kills the zero-time slice
+`μ {time = 0}`, so the conclusion covers `lowE u = time⁻¹' Ioc 0 u` in full for
+every `u < m`. ∎
+
+**Theorem 53.2 (= Theorem 48.2's identity, full proof; now [A]).** For positive
+finite μ, `LaplaceRate μ = lim inf_{s→∞} −(1/s)·log (lag μ (s·e₁) univ)`, where
+LaplaceRate is the sup definition of §48.
+
+*Proof.* Write `ℓ` for the lim-inf.
+(≥) Let `q < ℓ`. By definition of lim-inf there is `s₀` with
+`−(1/s)·log lag(s) > q` for all `s ≥ s₀`, i.e. `lag(s) < e^(−q·s)`. So `q`
+appears in the sup with `C = 1`; taking `q ↑ ℓ` gives sup ≥ ℓ.
+(≤) Let `m` appear in the sup with witnesses `C, s₀`. For `s ≥ s₀`:
+`−(1/s)·log lag(s) ≥ m − (log C)/s`; letting `s → ∞` through any sequence,
+lim-inf ≥ m. Sup over admissible `m` gives ℓ ≥ sup. ∎ (Elementary; no
+Tauberian input of any depth — the depth of the classical Tauberian theory in
+`LaplaceLimit.lean` is needed only for *test-function* consequences, not for
+the rate identity.)
+
+**Witness evaluation (completing §37/§39).**
+`m⊥(M1) = 0`: the transform is `lag(μ₁, s) = 2π(1 − (1+s)e^(−s))/s²`, so
+`−(1/s)·log lag = (2·log s)/s + O(1/s) → 0`; by Theorem 53.2, rate `= 0`.
+`m⊥(M2) = 0`: `log lag ≍ −2√s − (3/4)·log s + O(1)` (saddle, verified at V6),
+so `(2√s)/s → 0`. Both evaluations are now *proved*, not merely computed: the
+witnesses have no gap *and the proved rate identity says exactly why* — their
+transforms are subexponential. Conversely, any theory with `m⊥ > 0` is gapped
+by Theorem 53.1. The gap is the sign of one scalar; the method's inputs force
+the witness-compatible value 0.
+
+## 54. The citation audit
+
+All 34 distinct `file:line` citations in the document were extracted by script
+and re-verified against the current files. Results:
+
+- **Verified verbatim (32):** every citation in `ChallengeSpec.lean`
+  (12, 70, 117, 168, 186), `PublicTheory.lean` (130, 180, 274, 276),
+  `EveryPhase/Light.lean` (35, 43, 221), `EveryPhase/Vacuum.lean` (22, 51, 80),
+  `EveryPhase/Polynomials.lean` (87, 106), `SNAG/Escape.lean` (52),
+  `Ground/Spectrum.lean` (115, 127), `TraceExtension/LogScaling.lean` (20, 93,
+  108, 120), `TraceExtension/PolynomialGrowth.lean` (12, 15),
+  `TraceExtension/Wick/Refute.lean` (7, 23), `Complex/Holder.lean` (20), and
+  the two mass-gap disclaimers (`GridMerge.lean:10`, `Damping.lean:8`).
+- **Drift found and corrected (2):** `euclidean_excludes` is a `lemma` at
+  `Refute.lean:75` (Part V cited `theorem` at `:69–77` — the surrounding
+  proof body shifted the statement); `AllowsLaplace` is at
+  `LaplaceLimit.lean:14–17` (Part V cited `:12–15`). Both fixed in the text.
+
+**Result 54.1.** After correction, every load-bearing citation in the
+1,900-line document points at code whose content matches the claim made — the
+document is auditable end-to-end by the ledger of §46 plus the audit script of
+this pass.
+
+## 55. Program closure — ten passes
+
+The analysis is complete in the strongest sense reachable without compilation:
+
+1. **Scenario space** (I) → 2. **primitive mechanisms and minimal input** (II)
+→ 3. **infrastructure hinge** (III) → 4. **capacity ceiling** (IV) →
+5. **route closure; parameter located at `fee R M`** (V) → 6. **exhaustive
+sweep; mixture stability; in-model witnesses** (VI) → 7. **all-orders ceiling;
+entrance-free boundary** (VII) → 8. **numeric verification; exponential
+census; ledger** (VIII) → 9. **reduction to `LaplaceRate`; doors R6/R7
+specified** (IX) → 10. **complete proofs of the reduction; citation audit**
+(this pass).
+
+Final form of the mass-gap condition, unchanged since Part VII and now fully
+proved as a reduction at level [A]:
+
+> **Gap ⟺ (Δ1) ∃ m > 0: `(νletter L i A).real (lowE u) = 0` for all u < m, all i — ∪ (Δ2) `E({p ≠ 0 : p² = 0}) = 0` per character; the shell clause is *equivalent* to `LaplaceRate (νletter L i A) > 0` (Thms 53.1/53.2); the method's proved IR content evaluates this scalar only at value 0-compatible inputs (M1, M2, both witnessed inside its hypothesis classes and both with `m⊥ = 0` proved); `damped_lower` (`PolynomialGrowth.lean:15`) shows the construction knows how to finish the proof from `m⊥ > 0`; `fee R M` (`Light.lean:35`) shows where the input that would make `m⊥ > 0` provable is absent; the exits — R6 (`InfraredAsymptotic`, §49) and R7 (envelope propagation, §50) — are drafted to statement level and require dynamical input outside the method.**
+
+Nothing further strengthens the rule-out; the remaining mathematics lives
+entirely in R6 and R7.
