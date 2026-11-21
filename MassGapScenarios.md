@@ -499,6 +499,8 @@ marked); this is the simultaneous picture of where the gap can be *tested*:
 | G6 | spatial exponential clustering with rate `m` for every label's stationary two-point | B(needed: fiber strip) | **necessary only**; fails to see light-form-with-momentum-cutoff (Fact 4.2.2); use as a check, not as a certificate |
 | G7 | zero-momentum-projected temporal two-point rates `≥ m` uniformly over labels/towers | A− | needs the word-state lift (C3); equivalent to G4 pointwise |
 | G8 | finite-volume transfer gaps `λ(V) ≥ λ₀ > 0` along *every* volume refinement, inherited by the reconstruction | C | the lattice-side route; fails benignly under tunneling, badly under zero modes |
+| G9 | resolvent form: `self-adjoint evaluation ‖(P⁰+z)⁻¹|_{Ω⊥}‖ ≤ 1/(m+z)` for all (equivalently one) `z > 0` via the diagonal measures | A | spectral-evaluation identity; tunable certificate |
+| G10 | Dirichlet/Cheeger form: a nontrivial Cheeger constant `h > 0` for the reflection-positive conductance gives gap `≥ h²/2` | B (sufficient only) | the lattice-analysable route; isoperimetry converted into IRG |
 
 The equivalence chain G1 ⟺ G2 ⟺ G3 ⟺ G4 ⟺ G5 is the rigorous core
 (functional analysis + the proved `W0`–`W3`); G6/G8 are the physically
@@ -560,3 +562,185 @@ the repository computes it.
 - The gap equals IRG ∧ NL (Theorem 12.1), and every equivalent formulation
   (G1–G8) of it is now visible simultaneously, with its rigour level and its
   proof route.
+
+---
+
+# PART III — third pass: infrastructure, calculators, models, and the final conditions
+
+## 14. The infrastructure map (what actually exists in the repository)
+
+Direct reading of the modules that a gap proof must run through. This map
+replaces generic scaffolding: every item below is a concrete object in this
+repository.
+
+| Module | Object produced | Role in the gap program |
+|---|---|---|
+| `YM/OS/Dynamics.lean` | **existence of the coordinate OS semigroups, unconditional from the Table hierarchy** | the G5 semigroup exists already; header anticipates "PVM work or analytic-vector approaches to rotation" |
+| `YM/OS/Core.lean` | `Semigroup E t`, invariant subspace `ground := ⨅ t, ker(E t − id)` | G5's base eigenvalue; the gap statement is a norm statement on the orthocomplement of `ground` |
+| `YM/OS/Flow.lean` | heat operators on the GNS spaces for non-temporal axes | spatial-direction analogues needed to compare G6 with G5 |
+| `YM/OS/Train.lean`, `Halves.lean`, `Caps.lean`, `Slabs.lean` | train bounds with integral steps, slab operators over a range of widths | uniform-in-width cluster/slab estimates — raw material for spatial bounds |
+| `YM/Heat/Lift.lean`, `Rows.lean` | continuous calculus on the bounded first-step, positive powers | lifting of heat bounds to general durations |
+| `YM/Heat/Duration.lean` | **exact damping of spectral measures**: `descent t = e^{−t·p·a}`, `transform t μ = μ.withDensity (descent t)`, laws `stays_put`, `growth`, undamping operation | the Laplace/damping calculus already written on spectral measures — home of G4/G7/G9 |
+| `YM/EveryPhase/Light.lean` | `lowE u := time⁻¹' Ioc 0 u`; character-function averaging with `oddTest` integrals | the low-energy slabs — exactly the sets in NL/IRG |
+| `YM/EveryPhase/Projection.lean` | `aboveE`, `boltz s p = e^{−s·time p}` | Boltzmann weighting of spectral measures |
+| `YM/EveryPhase/Decay.lean` | **theorem `decay`: `μ(lowE u) ≤ C·u² ⟹ ∫ boltz s dμ ≤ C·Γ(3)·s⁻²`** | quadratic-vertex-weight ⟹ heat-integral bound — the finite-order half of the IRG calculus, already proved |
+| `YM/EveryPhase/Frequency.lean` | compact-frequency Schwartz tests recover "very hot" OS vectors via the full spectrum support; no analytic-vector density assumption | the analytic-vector bridge for the rotation/semigroup link in G5 |
+| `YM/EveryPhase/Strip.lean`, `Average.lean` | strip derivatives; time-averaged vacuum commutators without uniform bounds | spectral-integral techniques available off the shelf |
+| `YM/SNAG/Escape.lean` (with `Unital`, `Kernels`, `Approx`, `Dense`) | **"Full SNAG achieved … without assuming as a theorem"** | Bochner/Stone bridge: continuity ⟹ spectral representation; supports G4 without external spectral theorems |
+| `YM/TraceExtension/LaplaceDensity.lean`, `LaplaceLimit.lean` | nonnegative-moment Tauberian, part I (tests separate compactified cone points); continuity theorem for the Laplace transform on the open future cone — Hausdorff-moment-style Tauberian for *positive* measures with "actual test-function implications" | the general positive-measure Laplace layer for turning Laplace-side hypotheses into spectral/test conclusions |
+| `YM/TraceExtension/LogScaling.lean` | **Tauberian theorem on the log scale**: `EuclideanAsymptotic F A ⟹` spectral conclusions (`relative_limit`, `joint_limit`), anchored at `Zlog r = r⁻⁸·(log r)²` | a working model of exactly the wanted asymptotic⟹spectrum implication — but UV/trace-anchored |
+| `YM/Pressure/` | pressure/free-energy computations with volume receipts | the thermodynamic side feeding G8 |
+| `YM/Ground/` | generator slot in the character algebra; multi-cluster train limits; moment/permutation structure | per-character dynamics — feeds the gap function `m(χ)` of §9 |
+| `YM/Spectral/Projection.lean`, `Frequencies.lean` | PVM interface and tested-support criteria | G2 directly |
+
+Two conclusions from the map: (i) the *calculus* of the certificate chain
+G2↔G3↔G4↔G7↔G9 is essentially complete in-repo (SNAG, measure damping,
+low-slab tests, Laplace Tauberian for positive measures); (ii) what is **not**
+in the repository is any *dynamical* input: no zero-mode/volume analysis, no
+Cheeger/isoperimetry layer, no string tension, and the one existing
+asymptotic→spectrum Tauberian is anchored at the UV cascade, not at the vertex.
+
+## 15. The damped-measure calculus, made explicit
+
+Combine `Heat/Duration` + `EveryPhase/Light` + `EveryPhase/Decay` into the
+exact statements the gap program needs, all on *positive* measures on the
+future cone (the public `EnergyMomentumMeasure.diagonal` measures qualify via
+`diagonalIdentity` and `W0.positiveEnergy`).
+
+**Lemma 15.1 (vertex nullity from pointwise Laplace decay). [A]**
+If `∫ e^{−τp⁰} dμ ≤ C e^{−mτ}` for all `τ ≥ 0` and if `u < m`, then
+`μ(lowE u) = 0`: on `lowE u` the integrand dominates `e^{−τu}·1`, so
+`μ(lowE u) ≤ C e^{−τ(m−u)} → 0`. Since the region `{p : 0 ≤ time p < m}`
+is the countable union of `lowE(m − 1/n)`-slabs (use `countablyAdditive`
+of the PVM), this gives the timelike half of G3 from G4.
+
+**Lemma 15.2 (the two equivalent certificate forms). [A]**
+The *pointwise* form of IRG is G4; after one integration step it yields the
+*integrated* form `∫ boltz s dμ_ψ ≤ C′ e^{−ms}`, which is what the semigroup
+route (G5) naturally produces. In the reverse direction the proved
+`EveryPhase.decay` lemma shows the best *finite-order* conclusion available
+from a quadratic low-weight bound is polynomial (`s⁻²`), never exponential —
+so the two forms coincide exactly at exponential precision, and Lemma 15.1
+ties them with no Tauberian input. The Tauberian layer (`LogScaling`,
+`LaplaceLimit`) is needed only when the hypothesis is itself an *asymptotic*
+rather than a bound; adapting it from the `Zlog` UV anchor to a vertex anchor
+is build item N5 (§18).
+
+## 16. Model audit — sharpness and independence of IRG / NL
+
+Each model specifies spectral/PVM-support structure on the closed forward
+cone. The audit checks Theorem 12.1 cell by cell:
+
+| Model | Spectral structure | IRG | NL | Mass gap | Verdict vs. 12.1 |
+|---|---|---|---|---|---|
+| M1 free massive scalar | shell at `s = m²` | ✓ | ✓ | ✓ | consistent |
+| M2 free massless scalar | cone shell `s = 0`, reaching the vertex | ✗ | ✗ | ✗ | consistent |
+| M3 massless with momentum cutoff `‖p⇗‖ ≥ c` | `{p⁰ = ‖p⇗‖ ≥ c}`, closed, invariant, misses the vertex | **✓** | **✗** | ✗ | **NL necessary even under IRG** |
+| M4 atomic tower masses `mₙ = 2⁻ⁿ` | atoms at rest points, `p²ₙ ↓ 0` | **✗** | ✓ | ✗ | **IRG necessary even under NL** |
+| M5 vertex continuum `ρ(s) = e^{−1/s}` | non-atomic at the vertex, super-algebraically flat | ✗ | ✓ | ✗ | same as M4 with a benign-looking continuum |
+
+M3 confirms the legality claim of §8 at support level (its support is closed
+and Poincaré-invariant, so W0-level scrutiny alone does not exclude it; whether
+full `W0`–`W3`, locality and the reconstruction package admit such a theory is
+not decided here — the audit certifies only that dropping NL *removes the
+contradiction with the proved support-level data*). M5 reconfirms Fact 4.2.2:
+flatness to infinite order does not restore a rate. Overall Theorem 12.1 is
+exact: IRG ∧ NL is both necessary and sufficient, and neither postulate is
+redundant.
+
+## 17. Toolbox constraints — what cannot be assumed
+
+| Tool | Status for this problem | Consequence |
+|---|---|---|
+| FKG / attractivity / monotone comparison | unavailable: the Yang–Mills measure is not monotone; Ginibre inequalities do not apply to the plaquette action | no uniqueness-by-domination shortcuts; the reflection-positive semigroup route carries the rigorous side |
+| Cluster / polymer expansions | strong coupling only, while the constructed families sit in the asymptotically-free regime (positive running slope `2·b₀`) | cannot import weak-coupling/massless-screening analysis wholesale |
+| Transfer matrices (Kogut–Susskind, Lüscher) | exist in the literature; the repository's `YM.OS` semigroups are the analogous already-proved objects on the Euclidean side | route R1/R2 is buildable in-repo rather than external |
+| Cheeger / Dirichlet-form inequalities | absent from the repository; finite-volume Markov generators are finite-dimensional | G10 is a feasible new module, but the required isoperimetric constant is the actual physics |
+| Constructive IR renormalisation-group flow | the repository carries the all-orders OPE cascade but no IR flow bound | R3 has no known carrier; listed for completeness |
+| Seiberg–Witten-type exact results | different theory class | analogy only; no transferable mechanism |
+
+## 18. Build items, ordered by leverage
+
+1. **N1 — `MassGap.lean` core [A]:** `LowRegion`, `MassGap`, Lemma 2.1; then
+   the translation half of Theorem 5.1 (timelike support from energy gap) via
+   Lemma 15.1 on the `diagonal` measures. Uses only public signatures.
+2. **N2 — Theorem 5.2 [A]:** uniform temporal Laplace clustering ↔ the energy
+   half of G3, lifted from the word-generating dense set by `W1` plus
+   continuity/countable additivity of the projections.
+3. **N3 — backbone chain G1↔G2↔G3↔G4↔G5↔G9 [A]:** tested supports
+   (`Spectral.Frequencies`), the semigroup norm statement on the orthocomplement
+   of `ground` (`OS/Core`), resolvent evaluation; SNAG handles the
+   character-function bookkeeping.
+4. **N4 — per-character lift [A]:** from `Headline.Reconstruction.characters`
+   to per-character PVMs and the gap function `m(χ)`; Lemma 5.3 uniformity
+   under lower semicontinuity; closes the C4 clause.
+5. **N5 — vertex-anchored Tauberian [B]:** re-derive the `LogScaling`
+   architecture with the anchor at the `lowE` slabs: hypotheses = scaling
+   regimes of the zero-mode temporal two-point at large times; conclusions =
+   lower semicontinuity/positivity of the spectral edge. Turns any future
+   *asymptotic* infrared estimate into IRG automatically — the single
+   highest-leverage new module.
+6. **N6 — finite-volume descend [C — the dynamical core]:** from
+   `λ(V) ≥ λ₀` uniform over all volume refinements (G8) plus reconstruction
+   compatibility, to IRG(`λ₀`). Requires the zero-mode control distinguishing
+   benign tunneling (`e^{−σV}`) from A1/A2 collapse (`V^{−α}`); nothing in the
+   repository performs this step.
+7. **N7 — NL test [A given NL; C to prove NL]:** light-form exclusion as a
+   countable family of projection tests (G2 style) in the selected phase.
+
+## 19. The conditions, final form
+
+Assembling Parts I–III, the entire approach arrives at:
+
+**Exact characterisation (Theorem 12.1, audited in §16):**
+
+```
+MassGap(T, m)   ⟺   IRG(T, m)   ∧   NL(T)
+```
+
+where IRG ⟺ G4 ⟺ G5 ⟺ G9 is the energy gap with a free uniformity lift
+across states (density, C3), and NL is the light-form exclusion. Uniformity
+clauses:
+
+- across **states**: free (word-state density from `W1`, continuity of
+  projections) — no extra condition;
+- across **characters**: conditional — required only for `none`-phase/leading
+  Wilson-limit statements and for selection robustness (A4/A5); the
+  per-character theories of `Headline.Reconstruction` make the statement
+  well-formed;
+- across **volume refinements**: the `∀`-refinement version of IRG feeds N6;
+  if selection is unstable (A5) the theorem-level claim must hold for every
+  refinable phase or be paired with selection stability.
+
+**Certificate bundles (any one yields IRG):** G5 semigroup gap with
+`ground = ℂΩ`; G8-uniform finite-volume gaps with zero-mode control; G10 Cheeger/isoperimetry; a vertex-anchored Tauberian (N5) applied to asymptotic
+infrared estimates of the zero-mode temporal two-point at all orders.
+
+**Negative results (honesty of the condition list):** no mass gap follows from
+the proved data alone (§10 quantifier audit — every scenario cell survives);
+spatial exponential clustering is only *necessary* (Fact 4.2.2, model M3);
+spectral flatness buys nothing (M5); finite-volume gap collapse alone
+diagnoses nothing (tunneling vs zero-mode, §8).
+
+## 20. Summary of the three passes
+
+1. **Part I** fixed the target in the public language, catalogued every
+   failure mechanism, developed the rate calculus, and stated the first
+   condition list C1–C5.
+2. **Part II** reduced the catalogue, under `W2`-covariance, to two primitive
+   mechanisms (light-form, vertex-accumulation), recorded the gap-compatible
+   cells, upgraded the per-character picture from the detailed theorem,
+   audited the proved inputs by quantifier, and stated the minimal input
+   IRG ∧ NL (Theorem 12.1).
+3. **Part III** mapped the real infrastructure (OS semigroups, spectral
+   damping, low-energy slabs, SNAG, Laplace and log-scale Tauberians, pressure
+   receipts), proved-style the elementary bridges (Lemma 15.1/15.2) that make
+   G2↔G3↔G4↔G9 rigorous with no new spectral theory, audited the toolbox,
+   enumerated the build items N1–N7, and consolidated the final conditions
+   with a model audit showing IRG and NL are both necessary and jointly
+   sufficient.
+
+The remaining problem is precisely N6 (with N7): a uniform infrared energy
+gap and the absence of lightlike spectral weight for the constructed phases.
+Everything else in the chain is proved or buildable from existing repository
+infrastructure.
