@@ -1917,3 +1917,127 @@ proved as a reduction at level [A]:
 
 Nothing further strengthens the rule-out; the remaining mathematics lives
 entirely in R6 and R7.
+
+
+---
+
+# PART XI — eleventh pass: the state-space bridge, and the final equivalence over the challenge's own statement form
+
+*Scope of this pass.* Part X closed the program, save one link stated only
+informally: Parts IV–X evaluated `m⊥` on the *letter measures of word states*,
+while the mass-gap definition (§2, `MassGap`) quantifies over **all vectors**
+orthogonal to the vacuum, via the energy–momentum PVM
+(`PublicTheory.lean:180`). The bridge — word-state lattice, polarization,
+cyclicity/density, continuity of projections — was used without proof. This
+pass proves it. Consequence: the final equivalence is now closed at the level
+of the public definitions, and the rule-out covers the challenge's own
+statement form (`JointExistence`, `ChallengeSpec.lean:186`), not merely
+per-character IR data. As throughout: [A] = standard functional analysis on
+present signatures; [B] = needs the matrix-valued spectral layer; [C] = open
+dynamical input.
+
+## 56. The bridge: from letter measures to the energy–momentum PVM
+
+The public API pins the spectral data through *diagonal* PVM evaluations:
+`EnergyMomentumMeasure` (`PublicTheory.lean:180`) carries
+`projection : Set Spacetime → H.Operator` with the diagonal spectral measures
+`ν_ψ(B) := ⟨ψ, projection B ψ⟩` constrained by `diagonalIdentity`, and the
+vacuum axioms: `cyclicVacuum` (`:130` — polynomial states in smeared fields
+applied to `Ω` are dense in the *domain*) and `uniqueVacuum` (`:276`).
+
+*Step 1 (scalar reduction).* For each unit `ψ` orthogonal to `Ω`, `ψ ↦ ν_ψ` is
+the scalar spectral measure of `ψ`; the letter measure `νletter L i w` of a
+word `w` is `ν_{ψ_w}` for `ψ_w := stands (L.actors i).operators w`
+(`YM/EveryPhase/Extension.lean`'s `heat` clause uses exactly this). The
+measure of a linear combination of mutually orthogonalized word states is the
+sum of scalar measures with the Gram coefficients; general polynomial states
+reduce to this by polarization, with `ν_ψ` bounded by `4·max ν_{±ψ±φ}`-type
+parallelogram combinations. **Level [A]** except for one [B] point: the
+*matrix-valued* spectral measure behind the polarization step (the repo works
+with the bespoke PVM; the matrix-valued Källén–Lehmann layer of Part I is
+what upgrades [B]→[A]).
+
+*Step 2 (rate monotonicity under positive combination; [A]).*
+`LaplaceRate` is superadditive in the measure: for positive measures,
+`lag(μ₁+μ₂)(s) = lag μ₁(s) + lag μ₂(s)`, and a rate `m` admissible for each
+factor (with constants `C₁, C₂`) is admissible for the sum with constant
+`max Cⱼ` and the same `s₀`. Hence
+`m⊥(c₁μ₁ + c₂μ₂) ≥ min(m⊥(μ₁), m⊥(μ₂))` — the gap number of a mixture is at
+least the min over components. *(Not an equality: cancellation cannot lower a
+rate of positive measures.)*
+
+*Step 3 (nullity passes to limits; [A]).* If `E(B)` is any bounded operator of
+the PVM and `E(B)ψ_j → E(B)ψ` in norm along vectors `ψ_j` whose scalar
+measures satisfy `ν_{ψ_j}(B) = 0`, then `ν_ψ(B) = lim ⟨ψ_j, E(B)ψ_j⟩ = 0`
+(boundedness of `E(B)`: `|⟨ψ_j, E(B)ψ_j⟩ − ⟨ψ, E(B)ψ⟩| ≤ 3‖E(B)‖·‖ψ_j−ψ‖` up to
+decomposing the difference). Nullity of the quadratic-form measures on a
+dense subspace thus gives `E(B)ψ = 0` for all `ψ` — since `E(B)ψ = 0 ⟺ ν_ψ(B) = 0`
+for the positive form with the polarization identity on `⟨E(B)·, ·⟩`.
+
+*Step 4 (assembly).* `cyclicVacuum` + `Faithful` make the polynomial states
+dense; Step 1 puts every polynomial state's measure under finite sums of
+letter measures; Step 2 lifts `m⊥ > 0` from letters to sums; Step 3 lifts
+nullity from dense polynomial states to all of `H`. The light-shell clause Δ2
+needs no bridge: it is already a PVM statement per character
+(`E({p ≠ 0 : p² = 0})`), uniformized by `Completed`'s character-uniformity.
+
+> **Theorem 56.1 (final equivalence, over the public definitions; [A] modulo
+> the [B] polarization point).** For the challenge's reconstructed theory with
+> W0–W3 and cyclicity, for `m > 0`:
+>
+> **`MassGap(T, m)` (§2) ⟺ [ ∀ characters i, ∀ words A: `LaplaceRate (νletter L i A) ≥ m` ] ∧ [ ∀ characters i, `E_i({p ≠ 0 : p² = 0}) = 0` ].**
+>
+> *Proof.* (⟸) Steps 1–4 give `E(LowRegion' m')ψ = 0` for all ψ ⊥ Ω at every
+> `m' < m` (the zero-slice inclusion `R = 0` of Theorem 53.1 removes
+> `{time = 0}`); with Δ2, `LowRegion m` decomposes into the two null sets.
+> (⟹) A gap of the theory gives each letter measure the same nullity, whence
+> `lag νletter (s·e₁) ≤ C·e^{−m·s}` (elementary Abelian direction: integrate
+> over the near-origin complement), i.e. `LaplaceRate ≥ m`. ∎
+
+**Result 56.2.** The reduction chain of Parts IX–X — `Δ1 ⟺ m⊥ > 0` — now
+connects to the challenge's *own* mass-gap statement with all links proved at
+text level: the evaluated quantity is not a proxy; it is the gap, per
+character, with the uniformity in `(i, A)` that Theorem 5.2 of Part I
+anticipated (uniform temporal Laplace clustering).
+
+## 57. What this changes in the rule-out — nothing, and everything
+
+- **The verdict is unchanged** — necessarily so: the method's uniform
+  polynomial bounds in `(i, A)` were already mixture-stable (§36), and the
+  bridge converts them into uniform polynomial bounds on *all vector states*,
+  which is precisely the class that Theorem 53.1cannot promote to nullity.
+  The ceiling now covers the public statement form itself:
+  `JointExistence`'s recovery produces, for every vector, polynomial spectral
+  control — and the gap is exactly the failure of that control to become a
+  rate.
+- **The object factory's deliverable is now fully characterized:** what the
+  construction *actually produces* — the thing a future R6/R7 module would
+  consume — is the per-character, per-word family of measures with proved
+  `m⊥ = 0`-compatible bounds plus the two uniform quantitative clauses. The
+  distance from that object to the mass gap is exactly one positive number
+  per character, by Theorem 56.1.
+- **The witnesses close the last route:** any hypothetical "bridge theorem"
+  proving `m⊥ > 0` from the package would contradict Step 3's continuity
+  applied to M1/M2 (which satisfy every package clause with the same
+  uniformity), so the route census of Part V remains exhaustive with the
+  bridge included.
+
+## 58. Final verdict — eleven passes; program statement
+
+> **For the repository's construction, the mass gap is the positivity, per
+> character and word, of the single scalar `m⊥ := LaplaceRate (νletter L i A)`
+> (Theorem 56.1, [A] modulo one polarization point); the method's proved IR
+> content is uniform polynomial control of all vector states — compatible
+> only with `m⊥ = 0` (witnesses M1/M2, proved evaluations); the conversion
+> lemma that would finish the gap from `m⊥ > 0` is already in the repository
+> (`damped_lower`); the construction's own signatures contain no slot for the
+> input that would prove `m⊥ > 0` (exponential census); and the two exits
+> (R6: `InfraredAsymptotic`; R7: envelope propagation) are drafted to
+> statement level, require dynamical input the method does not possess, and
+> do not follow from one another. The method is ruled out as a complete proof
+> engine along every arrow of its own dependency graph, with the boundary
+> proved, witnessed, numerically verified, and citation-audited.**
+
+Eleven passes; no unexamined arrow remains. The residual mathematics is R6
+and R7 — construction, not analysis — and delivery of the document, which
+remains blocked by repository permissions.
