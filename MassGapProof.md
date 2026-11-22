@@ -721,8 +721,10 @@ coercions).
   → additionally `sorryAx`, inherited **solely** through
   `wedgeNull_of_rate_of_intertwines`.
 
-`Sorry` count in `MassGap.lean`: **1** (line 390). Everything else compiles with
-**0 errors, 0 warnings**.
+`Sorry` count in `MassGap.lean`: **1** — exactly one `sorry` command (line 390);
+the string also occurs twice in docstrings (lines 22, 378), which is prose, not
+proof debt. Verify with `lake env lean MassGap.lean`: exit code **0**, **0 errors**,
+and the single expected warning `MassGap.lean:385:8: declaration uses 'sorry'`.
 
 # Appendix B. Verification
 
