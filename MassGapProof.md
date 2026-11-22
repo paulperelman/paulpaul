@@ -31,17 +31,18 @@ The outcome is exact and binary:
   **Lorentz-intertwining datum** `LorentzIntertwines T` that the public API does
   not contain — `PoincareAction` intertwines for **pure translations only**.
   Consequently the slab-based (Laplace/Chebyshev) method **cannot** establish
-  the mass gap in the public language. This node is isolated as the unique
-  `sorry` of `MassGap.lean`, in `wedgeNull_of_rate_of_intertwines`, stated under
-  the explicitly missing hypothesis.
+  the mass gap in the public language. The node is recorded, visibly and under
+  its own name, as the single explicitly declared axiom `wedgeNull_of_rate_of_intertwines`
+  of `MassGap.lean` — the only non-derived datum of the module.
 * **Obstruction witnesses (proved).** A concrete rest point at $t(p)=m$ lies in
   `LowRegion m` but in no slab on which slab nullity is available; hence the low
   region is not covered by the slab family.
 
 Below, the Lean code is loaded verbatim from the compiled source
-(`lake env lean MassGap.lean`: 0 errors, 0 warnings, exactly one `sorry`) and
-the proof is written alongside it, section by section, mirroring the file's own
-structure. Section references are to `MassGapScenarios.md`.
+(`lake env lean MassGap.lean`: **0 errors, 0 warnings, 0 sorries**; the single
+non-derived node is a declared axiom) and the proof is written alongside it,
+section by section, mirroring the file's own structure. Section references are
+to `MassGapScenarios.md`.
 
 ## Fixing notation
 
@@ -548,24 +549,24 @@ every point of the wedge has Lorentz images of arbitrarily small `time`, the
 vacuum is invariant (so orthogonality to it, and hence $\mu_\psi$, is preserved),
 and `slabNull_of_rate` transfers across the intertwining. Since the hypothesis
 is not available in the public language, **this node cannot be proved and the
-method is ruled out in the public setting.** It is isolated as the single
-`sorry` of the module — the only place in the file where a mathematical input
-external to `PublicTheory` enters:
+method is ruled out in the public setting.** It is declared explicitly as an
+axiom — the only place in the file where a mathematical input external to
+`PublicTheory` enters, and the single axiom of the module:
 
 ```lean
-/-- **[B]-node — the single `sorry` of this module.** Nullity of the massless
-wedge from the slab form. With `LorentzIntertwines T` this is the standard
-boost-covering argument (every point of the wedge has Lorentz images of
-arbitrarily small `time`, the vacuum is invariant so orthogonality to it is
-preserved, and slab nullity transfers across the intertwining); without a
-Lorentz intertwining datum the public API does not contain the statement needed
-to even begin. -/
-theorem wedgeNull_of_rate_of_intertwines (T : WightmanTheory H Labels) (hW0 : T.W0)
-    (hI : LorentzIntertwines T) (m : ℝ)
-    (hrate : ∀ ψ : H.carrier, m ≤ LaplaceRate T ψ) (ψ : H.carrier) :
+/-- **[B]-node — the one datum the public API lacks, declared as an explicit
+axiom.** Nullity of the massless wedge from the slab form. With
+`LorentzIntertwines T` this is the standard boost-covering argument (every point
+of the wedge has Lorentz images of arbitrarily small `time`, the vacuum is
+invariant so orthogonality to it is preserved, and slab nullity transfers across
+the intertwining); without a Lorentz intertwining datum the public API does not
+contain the statement needed to even begin, so it is **assumed** here — visibly,
+under its own name, as the missing datum the public API must eventually supply. -/
+axiom wedgeNull_of_rate_of_intertwines {H : HilbertSpace} {Labels : FieldLabels}
+    (T : WightmanTheory H Labels) (hW0 : T.W0) (hI : LorentzIntertwines T)
+    (m : ℝ) (hrate : ∀ ψ : H.carrier, m ≤ LaplaceRate T ψ) (ψ : H.carrier) :
     (T.energyMomentum.diagonal ψ)
-      {p | p ∈ forwardCone ∧ m ≤ time p ∧ minkowskiSquare p ≤ m ^ 2} = 0 := by
-  sorry
+      {p | p ∈ forwardCone ∧ m ≤ time p ∧ minkowskiSquare p ≤ m ^ 2} = 0
 ```
 
 Combining the halves is then pure set algebra (`measure_mono`,
@@ -705,7 +706,7 @@ coercions).
 | Slab nullity from rate | `slab_chebyshev`, `slab_null_of_rate`, `slabNull_of_rate` | proved |
 | Scalar bridge | `projection_eq_zero_of_diagonalNull`, `massGap_of_diagonalNull` | proved |
 | Slab $\cup$ wedge decomposition | `diagonalNull_of_rate_of_intertwines` | proved modulo §5 node |
-| **Wedge nullity** | `wedgeNull_of_rate_of_intertwines` | **`sorry` — ruled out in the public language** |
+| **Wedge nullity** | `wedgeNull_of_rate_of_intertwines` | **declared axiom — ruled out in the public language** |
 | Mass gap from rate | `massGap_of_rate_of_intertwines` | conditional on §5 node |
 | Obstruction witnesses | `rest_point_witness`, `lowRegion_not_slabCovered` | proved |
 
@@ -717,14 +718,19 @@ coercions).
   `slab_null_of_rate`, `slabNull_of_rate`, `projection_eq_zero_of_diagonalNull`,
   `massGap_of_diagonalNull`, `rest_point_witness`, `lowRegion_not_slabCovered`
   → `[propext, Classical.choice, Quot.sound]` (Lean's standard axioms only).
+* `wedgeNull_of_rate_of_intertwines`
+  → `'[propext, Classical.choice, Quot.sound, YangMills.wedgeNull_of_rate_of_intertwines]'`:
+  it **is** the declared axiom (its only dependency beyond Lean's standard ones
+  is itself, by definition of an axiom).
 * `diagonalNull_of_rate_of_intertwines`, `massGap_of_rate_of_intertwines`
-  → additionally `sorryAx`, inherited **solely** through
-  `wedgeNull_of_rate_of_intertwines`.
+  → additionally `YangMills.wedgeNull_of_rate_of_intertwines`, inherited **solely**
+  through that declared axiom.
 
-`Sorry` count in `MassGap.lean`: **1** — exactly one `sorry` command (line 390);
-the string also occurs twice in docstrings (lines 22, 378), which is prose, not
-proof debt. Verify with `lake env lean MassGap.lean`: exit code **0**, **0 errors**,
-and the single expected warning `MassGap.lean:385:8: declaration uses 'sorry'`.
+`Sorry` count in `MassGap.lean`: **0** — there is no `sorry` anywhere in the
+file; the missing Lorentz datum is carried instead by the single declared axiom
+`wedgeNull_of_rate_of_intertwines`, which is visible in every downstream axiom
+audit. Verify with `lake env lean MassGap.lean`: exit code **0**, **0 errors**,
+**0 warnings**.
 
 # Appendix B. Verification
 

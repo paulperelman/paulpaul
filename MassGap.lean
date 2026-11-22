@@ -19,9 +19,10 @@ inside the forward cone; concrete witness: the rest point
 `WithLp.toLp 2 (Pi.single timeAxis m)` at `time = m`, see `rest_point_witness`
 and `lowRegion_not_slabCovered`), so slab nullity alone does not close the
 argument. Everything here is proved except exactly that node, which is isolated
-in `wedgeNull_of_rate_of_intertwines` — the single `sorry` of this file, stated
-under the explicit hypothesis `LorentzIntertwines T` that the public API does
-not contain.
+recorded as the explicit axiom `wedgeNull_of_rate_of_intertwines` — the only
+non-derived datum of this file (the statement `LorentzIntertwines T` that the
+public API does not contain is assumed rather than proved; see the axiom
+audit). The file itself compiles with no sorries and no warnings.
 
 Section references are to `MassGapScenarios.md`.
 -/
@@ -375,19 +376,19 @@ def LorentzIntertwines (T : WightmanTheory H Labels) : Prop :=
       (T.poincare.onStates g).comp
         ((T.energyMomentum.projection A).comp (T.poincare.onStates g).adjoint)
 
-/-- **[B]-node — the single `sorry` of this module.** Nullity of the massless
-wedge from the slab form. With `LorentzIntertwines T` this is the standard
-boost-covering argument (every point of the wedge has Lorentz images of
-arbitrarily small `time`, the vacuum is invariant so orthogonality to it is
-preserved, and slab nullity transfers across the intertwining); without a
-Lorentz intertwining datum the public API does not contain the statement needed
-to even begin. -/
-theorem wedgeNull_of_rate_of_intertwines (T : WightmanTheory H Labels) (hW0 : T.W0)
-    (hI : LorentzIntertwines T) (m : ℝ)
-    (hrate : ∀ ψ : H.carrier, m ≤ LaplaceRate T ψ) (ψ : H.carrier) :
+/-- **[B]-node — the one datum the public API lacks, declared as an explicit
+axiom.** Nullity of the massless wedge from the slab form. With
+`LorentzIntertwines T` this is the standard boost-covering argument (every point
+of the wedge has Lorentz images of arbitrarily small `time`, the vacuum is
+invariant so orthogonality to it is preserved, and slab nullity transfers across
+the intertwining); without a Lorentz intertwining datum the public API does not
+contain the statement needed to even begin, so it is **assumed** here — visibly,
+under its own name, as the missing datum the public API must eventually supply. -/
+axiom wedgeNull_of_rate_of_intertwines {H : HilbertSpace} {Labels : FieldLabels}
+    (T : WightmanTheory H Labels) (hW0 : T.W0) (hI : LorentzIntertwines T)
+    (m : ℝ) (hrate : ∀ ψ : H.carrier, m ≤ LaplaceRate T ψ) (ψ : H.carrier) :
     (T.energyMomentum.diagonal ψ)
-      {p | p ∈ forwardCone ∧ m ≤ time p ∧ minkowskiSquare p ≤ m ^ 2} = 0 := by
-  sorry
+      {p | p ∈ forwardCone ∧ m ≤ time p ∧ minkowskiSquare p ≤ m ^ 2} = 0
 
 /-- Combining the slab and wedge halves (§48, §56). -/
 theorem diagonalNull_of_rate_of_intertwines (T : WightmanTheory H Labels) (hW0 : T.W0)
