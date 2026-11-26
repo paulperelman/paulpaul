@@ -379,8 +379,17 @@ its intertwining/pullback patterns from `MassGap.lean`'s `LorentzIntertwines`
 and scalar-bridge sections; only the factoring plumbing
 (`FactorsThrough`, `charged_of_sectorCharged`,
 `sectorConfined_of_parentNeutral`) and the one-line arithmetic
-(`unified_of_flow`) are new. The file contains no `sorry` and no `axiom` by
-construction; compilation must be confirmed under the pinned toolchain above.
+(`unified_of_flow`) are new. The file contains no `sorry` and no `axiom`.
+**Verified** (elan toolchain `v4.32.0`, Mathlib cache at the pinned snapshot,
+8,658 jobs built): `lake env lean Unification.lean` exits **0** with **no
+output** — 0 errors, 0 warnings. Baseline regression: `lake env lean
+Confinement.lean` and `lake env lean MassGap.lean` compile clean in the same
+environment. Axiom audit (`#print axioms` on a copy with the audit block
+appended; exit 0): `sectorConfined_of_parentNeutral`, `freeLabel_parentFixed`,
+`charged_of_sectorCharged`, `free_means_parentNeutral`, `unified_of_flow`,
+`diagonal_pullback`, `gauge_excitation` — all print
+`[propext, Classical.choice, Quot.sound]`, Lean's standard axioms only.
+Nothing is assumed.
 
 ## Appendix B — Cross-references
 
