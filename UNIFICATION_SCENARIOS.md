@@ -1,7 +1,7 @@
 ---
 title: "Unifying the Four Forces in the Challenge's Public Language"
 subtitle: "Full methodology, machine-checked skeleton, and the rule-out — no extra dimensions, no strings"
-author: "Analysis: Vibe Code (Mistral AI); public language: `yang-mills-group/OpenAI-YM-20261028`"
+author: "Analysis: Mistral AI; public language: `yang-mills-group/OpenAI-YM-20261028`"
 date: "2026"
 geometry: margin=1in
 fontsize: 10pt
